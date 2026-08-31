@@ -1,0 +1,5 @@
+Name                                                                          ID                                                                                   Version              Verfügbar Quelle
+---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+Autodesk Advance Steel 2025 – Deutsch (German) 㙘                             ARP\Machine\X64\{DB1E901E-C60E-3E81-941A-CB97919FFD33}                               29.0.232.0                     
+Advance Steel 2025.0.3 Hotfix                                                 ARP\Machine\X64\{909C33DD-FD1B-380F-8B55-2106A5D18DA2}                               29.0.329.0                     
+Advance Steel 2027.0.1 Hotfix                                                 ARP\Machine\X64\{71A1D761-9112-39E0-8D81-0A14DCCB14F4}                               31.0.260.0                     

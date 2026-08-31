@@ -1,0 +1,32 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <OutputType>WinExe</OutputType>
+    <TargetFramework>net10.0-windows</TargetFramework>
+    <UseWPF>true</UseWPF>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <LangVersion>latest</LangVersion>
+    <AssemblyName>WinGetStudio</AssemblyName>
+    <RootNamespace>WinGetStudio</RootNamespace>
+    <Product>WinGet Studio</Product>
+    <AssemblyTitle>WinGet Studio</AssemblyTitle>
+    <Version>0.1.0</Version>
+    <ApplicationManifest>app.manifest</ApplicationManifest>
+    <SatelliteResourceLanguages>en;de</SatelliteResourceLanguages>
+    <InvariantGlobalization>false</InvariantGlobalization>
+    <EnableWindowsTargeting>true</EnableWindowsTargeting>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <InternalsVisibleTo Include="WinGetStudio.Tests" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <!-- Eingebettet, damit die veroeffentlichte Anwendung wirklich aus einer Datei besteht.
+         Eine Datei gleichen Namens neben der EXE hat trotzdem Vorrang - so laesst sich das
+         Schema an eine neuere winget-Version anpassen, ohne neu zu bauen. -->
+    <EmbeddedResource Include="Resources\winget-schema.json" LogicalName="winget-schema.json" />
+  </ItemGroup>
+
+</Project>

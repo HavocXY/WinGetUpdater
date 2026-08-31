@@ -1,0 +1,4 @@
+Name         ID                        Version Verfügbar Quelle
+---------------------------------------------------------------
+Stirling PDF StirlingTools.StirlingPDF 2.14.0  2.14.3    winget
+1 Aktualisierungen verfügbar.
