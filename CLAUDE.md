@@ -172,6 +172,21 @@ requirement made testable.
 
   Fixtures that are *not* verbatim winget output must be built from column widths, never from
   hand-aligned literals — hand alignment silently rots.
+* **The palette follows the Anthropic brand guidelines** (`Dark.xaml` / `Light.xaml`), and three
+  rules fall out of it. Keep them when touching colours:
+  - Both theme files must define the **same 26 keys**. A key defined in only one file leaves that
+    brush unresolved after a theme switch.
+  - **Dark text on orange, never white.** `#141413` on `#D97757` is 5.9:1; white is 3.1:1 and
+    fails. That is why `Fg.OnAccent` is dark in *both* themes.
+  - Orange is the action colour, so it cannot also mean "error". Errors use a separate red and
+    warnings a gold — and every state additionally carries its own glyph (✓ / ✕ / ●) and wording,
+    so colour is never the sole signal. Red and orange are the classic colour-blindness pair;
+    the glyph is what actually carries the meaning.
+  - Every foreground/background pair in use clears 4.5:1. If you change a colour, re-measure
+    rather than eyeball it.
+* Poppins and Lora (the brand's typefaces) are **not** used: they are not installed on this
+  machine, and WPF cannot fetch webfonts, so the app would silently fall back to Arial/Georgia.
+  Segoe UI stays until the fonts are bundled with the app.
 * **`winget.exe` is not reliably on PATH.** `WingetLocator` tries the App Execution Alias, then
   PATH, then globs `Microsoft.DesktopAppInstaller_*_8wekyb3d8bbwe` under WindowsApps. If none
   works the app shows an explanatory page instead of failing.

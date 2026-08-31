@@ -176,6 +176,26 @@ alle drei durch echte Ausgaben dieses Rechners aufgedeckt:
 
 Die Testdateien unter `tests\WinGetUpdater.Tests\Fixtures\` sind unveränderte Originalausgaben.
 
+### Die Farbwelt
+
+Die Palette folgt den Anthropic-Markenrichtlinien: Dark `#141413`, Cream `#faf9f5`,
+Mid Gray `#b0aea5`, Light Gray `#e8e6dc`, dazu Orange `#d97757` als Akzent sowie Blau und Grün.
+Drei Festlegungen ergeben sich daraus:
+
+* **Auf Orange steht dunkler Text, nicht weißer.** `#141413` auf `#d97757` erreicht 5,9:1,
+  Weiß nur 3,1:1 und fällt damit unter die Lesbarkeitsschwelle. Deshalb ist `Fg.OnAccent` in
+  beiden Designs dunkel.
+* **Orange ist die Aktionsfarbe und kann nicht zugleich Fehler bedeuten.** Fehler bekommen ein
+  eigenes Rot, Warnungen ein Gold — und jeder Zustand trägt zusätzlich sein eigenes Zeichen
+  (✓ / ✕ / ●) und einen Text. Rot und Orange sind das klassische Verwechslungspaar bei
+  Farbfehlsichtigkeit; die Bedeutung hängt deshalb nie an der Farbe allein.
+* **Jede verwendete Vordergrund-/Hintergrundpaarung erreicht mindestens 4,5:1.** Nachgemessen,
+  nicht geschätzt.
+
+Die Schriften der Marke (Poppins, Lora) sind bewusst *nicht* übernommen: sie sind auf dem
+Zielsystem nicht installiert, und WPF kann keine Webschriften nachladen — die Oberfläche würde
+still auf Arial und Georgia zurückfallen. Es bleibt bei Segoe UI.
+
 ### Die Rechteerhöhung
 
 Ein per `runas` gestarteter Prozess lässt sich nicht umleiten. Der erhöhte Aufruf schreibt daher
