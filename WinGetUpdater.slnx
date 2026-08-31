@@ -1,0 +1,8 @@
+<Solution>
+  <Folder Name="/src/">
+    <Project Path="src/WinGetUpdater/WinGetUpdater.csproj" />
+  </Folder>
+  <Folder Name="/tests/">
+    <Project Path="tests/WinGetUpdater.Tests/WinGetUpdater.Tests.csproj" />
+  </Folder>
+</Solution>

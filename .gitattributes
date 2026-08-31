@@ -3,4 +3,4 @@
 
 # Testdaten sind unveränderte winget-Ausgaben. Zeilenenden bleiben unangetastet,
 # damit die Dateien wirklich das sind, was winget geschrieben hat.
-tests/WinGetStudio.Tests/Fixtures/*.txt -text
+tests/WinGetUpdater.Tests/Fixtures/*.txt -text

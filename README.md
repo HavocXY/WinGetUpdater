@@ -1,4 +1,4 @@
-# WinGet Studio
+# WinGetUpdater
 
 Eine Windows-Anwendung für den Paketmanager `winget`. Sie kann auf den ersten Blick genau eine
 Sache — **installierte Programme aktualisieren** — und auf den zweiten alles, was `winget` kann.
@@ -52,7 +52,7 @@ zeigt jederzeit, ob etwas vorgefallen ist.
 
 * **Im Fenster**: jeder winget-Aufruf mit Befehlszeile, Exitcode und Laufzeit; jede Ausgabe auf
   dem Fehlerkanal; jede abgefangene Ausnahme mit vollständigem Stapel.
-* **In der Datei**: `%LOCALAPPDATA%\WinGetStudio\wingetstudio.log`, fortlaufend geschrieben und
+* **In der Datei**: `%LOCALAPPDATA%\WinGetUpdater\wingetupdater.log`, fortlaufend geschrieben und
   bei 1 MB einmal umgewälzt. Übersteht auch einen Absturz.
 * **Abgesichert**: der Test `NoSwallowedErrorsTests` durchsucht den Quelltext nach leeren oder
   nur kommentierten `catch`-Blöcken und lässt den Build scheitern, sobald einer auftaucht.
@@ -88,11 +88,11 @@ Das prüft das Schema gegen die installierte winget-Version, führt die Tests au
 eigenständige Einzeldatei ab:
 
 ```
-dist\win-x64\WinGetStudio.exe    (~59 MB, läuft ohne installiertes .NET)
+dist\win-x64\WinGetUpdater.exe    (~59 MB, läuft ohne installiertes .NET)
 ```
 
 Für ARM-Geräte: `.\build.ps1 -Runtime win-arm64`.
-Während der Entwicklung genügt `dotnet run --project src\WinGetStudio`.
+Während der Entwicklung genügt `dotnet run --project src\WinGetUpdater`.
 
 ### Verborgene Schalter
 
@@ -105,7 +105,7 @@ machen sie automatisiert nachvollziehbar:
 | `--screenshot bild.png [--command <id>] [--query <text>] [--run] [--options] [--output] [--log] [--light] [--english]` | Nimmt das Fenster als PNG auf, wahlweise nach einem echten Lauf. `--screenshot none` überspringt das Bild. |
 | `--report datei.tsv --command <id> --run --screenshot none` | Hängt Befehl, Zustand, Exitcode und Zeilenzahl an eine Datei — für Durchläufe über viele Befehle. |
 
-Nicht behandelte Ausnahmen stehen zusätzlich in `%TEMP%\wingetstudio-crash.log`.
+Nicht behandelte Ausnahmen stehen zusätzlich in `%TEMP%\wingetupdater-crash.log`.
 
 ---
 
@@ -123,7 +123,7 @@ Abweichung: `FEHLT-IM-SCHEMA`, `NICHT-IN-WINGET` und `UNBENUTZTE-OPTION`. Exitco
 deckungsgleich; `build.ps1` bricht ab, wenn das Skript rot ist.
 
 **Bei einer neuen winget-Version** genügt es, das Skript laufen zu lassen und die gemeldeten
-Optionen in `src\WinGetStudio\Resources\winget-schema.json` nachzutragen. Die Oberfläche ändert
+Optionen in `src\WinGetUpdater\Resources\winget-schema.json` nachzutragen. Die Oberfläche ändert
 sich dabei nicht — sie wird vollständig aus dem Schema erzeugt. Wer nicht neu bauen will, legt
 eine angepasste `winget-schema.json` in einen Ordner `Resources` neben die EXE; eine solche Datei
 hat Vorrang vor der eingebetteten.
@@ -133,7 +133,7 @@ hat Vorrang vor der eingebetteten.
 ## Aufbau
 
 ```
-src\WinGetStudio\
+src\WinGetUpdater\
 ├─ Resources\winget-schema.json   Alle 39 Befehle und 99 Optionen, zweisprachig beschrieben
 ├─ Models\Schema.cs               Datentypen dazu
 ├─ Services\
@@ -148,7 +148,7 @@ src\WinGetStudio\
 ├─ ViewModels\                    ShellVm (zwei Betriebsarten), UpdateVm, CommandVm, OptionVm
 └─ Views\                         ShellWindow, UpdatePage, CommandPage, Konverter
 tools\Check-Schema.ps1            Der Vollständigkeitsnachweis
-tests\WinGetStudio.Tests\         63 Tests, davon 5 gegen unveränderte winget-Ausgaben
+tests\WinGetUpdater.Tests\         63 Tests, davon 5 gegen unveränderte winget-Ausgaben
 ```
 
 Kein einziges NuGet-Paket in der Anwendung selbst — WPF, `System.Text.Json` und `Process`
@@ -174,7 +174,7 @@ alle drei durch echte Ausgaben dieses Rechners aufgedeckt:
    gilt deshalb zusätzlich als Spaltengrenze, wenn an derselben Stelle in jeder Datenzeile
    ebenfalls eines steht; Zeilen, die das Raster verletzen, landen im Anhang statt in der Tabelle.
 
-Die Testdateien unter `tests\WinGetStudio.Tests\Fixtures\` sind unveränderte Originalausgaben.
+Die Testdateien unter `tests\WinGetUpdater.Tests\Fixtures\` sind unveränderte Originalausgaben.
 
 ### Die Rechteerhöhung
 
@@ -216,3 +216,13 @@ statt vollständige Tiefe. Konkret ruft es 9 der 39 winget-Befehle auf und erzeu
   „Alle Befehle → Ausgabe" zeigt sie vollständig.
 * `dscv3` erwartet seine Eingabe über die Standardeingabe. Die Oberfläche stellt die Schalter
   bereit, reicht aber noch keine Nutzlast durch.
+
+---
+
+## Lizenz
+
+[MIT](LICENSE) — © 2026 Stefan Dohr.
+
+Das Auffinden von `winget.exe` außerhalb des PATH ist konzeptionell
+[Winget-AutoUpdate](https://github.com/Romanitho/Winget-AutoUpdate) entlehnt (MIT, © Romanitho);
+der Code ist eigenständig in C# geschrieben.

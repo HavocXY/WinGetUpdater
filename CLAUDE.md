@@ -4,7 +4,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## What this is
 
-WinGet Studio is a WPF desktop front end for the Windows package manager `winget`. It has two
+WinGetUpdater is a WPF desktop front end for the Windows package manager `winget`. It has two
 faces, and both are load-bearing requirements:
 
 1. **The main view does exactly one thing** — update installed programs — and must stay
@@ -31,13 +31,13 @@ German; keep that convention when editing.
 ```
 
 ```bash
-dotnet build src/WinGetStudio/WinGetStudio.csproj      # dev build
-dotnet run --project src/WinGetStudio                  # run the app
-dotnet test tests/WinGetStudio.Tests/WinGetStudio.Tests.csproj
-dotnet test tests/WinGetStudio.Tests/WinGetStudio.Tests.csproj --filter "FullyQualifiedName~TableParserTests"
+dotnet build src/WinGetUpdater/WinGetUpdater.csproj      # dev build
+dotnet run --project src/WinGetUpdater                  # run the app
+dotnet test tests/WinGetUpdater.Tests/WinGetUpdater.Tests.csproj
+dotnet test tests/WinGetUpdater.Tests/WinGetUpdater.Tests.csproj --filter "FullyQualifiedName~TableParserTests"
 ```
 
-The solution is `WinGetStudio.slnx` (the XML solution format), not a classic `.sln`.
+The solution is `WinGetUpdater.slnx` (the XML solution format), not a classic `.sln`.
 
 ### Headless modes — use these to verify changes
 
@@ -45,12 +45,12 @@ The app is a `WinExe`, so these are the way to check it without a human clicking
 because normal verification is otherwise impossible; prefer them over asking the user to look.
 
 ```bash
-WinGetStudio.exe --selftest
+WinGetUpdater.exe --selftest
 # Schema load, option-id resolution, winget discovery, command-line building, elevation
 # detection and table parsing, without opening a window. Exit 0 = fine.
-# Report also written to %TEMP%\wingetstudio-selftest.txt
+# Report also written to %TEMP%\wingetupdater-selftest.txt
 
-WinGetStudio.exe --screenshot out.png [flags]
+WinGetUpdater.exe --screenshot out.png [flags]
 # Renders the real window to PNG. Read the PNG back to check layout and bindings.
 #   (no --command)   main view; waits for the automatic update check to finish first
 #   --command <id>   switches to advanced mode and selects that command
@@ -63,13 +63,13 @@ WinGetStudio.exe --screenshot out.png [flags]
 #   --light --english  theme and language
 #   --screenshot none  skip the image (useful with --report)
 
-WinGetStudio.exe --report runs.tsv --command <id> --run --screenshot none
+WinGetUpdater.exe --report runs.tsv --command <id> --run --screenshot none
 # Appends: command id, run state, status text, row count, preview line, first output line.
 # Loop this over many commands to smoke-test them in one pass.
 ```
 
-Unhandled exceptions land in `%TEMP%\wingetstudio-crash.log` **and** in the error log at
-`%LOCALAPPDATA%\WinGetStudio\wingetstudio.log`. Check both after any headless run; a silent
+Unhandled exceptions land in `%TEMP%\wingetupdater-crash.log` **and** in the error log at
+`%LOCALAPPDATA%\WinGetUpdater\wingetupdater.log`. Check both after any headless run; a silent
 exit code 0 with no PNG usually means an exception was recorded there.
 
 ## Architecture
@@ -104,7 +104,7 @@ write without recursing.
 
 ### The schema is the program
 
-`src/WinGetStudio/Resources/winget-schema.json` describes all 39 commands and 99 options. The UI
+`src/WinGetUpdater/Resources/winget-schema.json` describes all 39 commands and 99 options. The UI
 is generated from it at runtime. **There is no per-command UI code anywhere.** The flow is:
 
 ```
@@ -157,12 +157,12 @@ requirement made testable.
 * **`--force` and the `--accept-*` switches are never added automatically.** They defeat checks
   winget performs deliberately. Options with `"risk": "high"` in the schema get a warning marker.
 * **Elevated runs cannot be redirected.** `WingetRunner.RunElevatedAsync` starts
-  `cmd /c winget … > %TEMP%\wgstudio-<guid>.log 2>&1` with `Verb=runas` and tails that file while
+  `cmd /c winget … > %TEMP%\wgupdater-<guid>.log 2>&1` with `Verb=runas` and tails that file while
   it runs, so the UI sees the same line stream either way. UAC cancellation surfaces as
   `Win32Exception` 1223. Note this path is not covered by tests — it needs a real UAC prompt.
 * **Table parsing is positional and measured in display columns, not characters.** Three real
   winget quirks are handled, each found in actual output from this machine and each covered by a
-  fixture in `tests/WinGetStudio.Tests/Fixtures/`:
+  fixture in `tests/WinGetUpdater.Tests/Fixtures/`:
   - headers are localised (`Übereinstimmung` vs `Match`), so boundaries come from positions;
   - winget pads by **display width**, so an East Asian character (one `char`, two columns) shifts
     a whole row — `TableParser.RuneWidth` exists for this and must not be simplified away;

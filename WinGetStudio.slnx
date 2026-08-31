@@ -1,8 +1,0 @@
-<Solution>
-  <Folder Name="/src/">
-    <Project Path="src/WinGetStudio/WinGetStudio.csproj" />
-  </Folder>
-  <Folder Name="/tests/">
-    <Project Path="tests/WinGetStudio.Tests/WinGetStudio.Tests.csproj" />
-  </Folder>
-</Solution>

@@ -10,10 +10,10 @@
     Exitcode 1 = Abweichung gefunden (fehlende oder ueberzaehlige Optionen).
 
     Das ist der Vollstaendigkeitsnachweis: solange dieses Skript gruen ist,
-    unterstuetzt WinGet Studio jede Option, die winget dokumentiert.
+    unterstuetzt WinGetUpdater jede Option, die winget dokumentiert.
 
 .PARAMETER SchemaPath
-    Pfad zu winget-schema.json. Standard: ..\src\WinGetStudio\Resources\winget-schema.json
+    Pfad zu winget-schema.json. Standard: ..\src\WinGetUpdater\Resources\winget-schema.json
 
 .PARAMETER Quiet
     Nur die Zusammenfassung ausgeben.
@@ -29,7 +29,7 @@ $ErrorActionPreference = 'Stop'
 if (-not $SchemaPath) {
     # $PSScriptRoot ist je nach Aufrufart leer; dann vom aktuellen Verzeichnis aus suchen.
     $base = if ($PSScriptRoot) { $PSScriptRoot } else { Join-Path (Get-Location) 'tools' }
-    $SchemaPath = Join-Path $base '..\src\WinGetStudio\Resources\winget-schema.json'
+    $SchemaPath = Join-Path $base '..\src\WinGetUpdater\Resources\winget-schema.json'
 }
 
 if (-not (Test-Path -LiteralPath $SchemaPath)) {

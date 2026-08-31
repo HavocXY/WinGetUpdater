@@ -1,6 +1,6 @@
 <#
 .SYNOPSIS
-    Baut, prueft und veroeffentlicht WinGet Studio.
+    Baut, prueft und veroeffentlicht WinGetUpdater.
 
 .DESCRIPTION
     Ohne Parameter wird die vollstaendige Kette ausgefuehrt:
@@ -27,8 +27,8 @@ param(
 
 $ErrorActionPreference = 'Stop'
 $root = $PSScriptRoot
-$project = Join-Path $root 'src\WinGetStudio\WinGetStudio.csproj'
-$tests = Join-Path $root 'tests\WinGetStudio.Tests\WinGetStudio.Tests.csproj'
+$project = Join-Path $root 'src\WinGetUpdater\WinGetUpdater.csproj'
+$tests = Join-Path $root 'tests\WinGetUpdater.Tests\WinGetUpdater.Tests.csproj'
 $output = Join-Path $root "dist\$Runtime"
 
 function Step([string] $text) {
@@ -59,12 +59,12 @@ dotnet publish $project `
     --nologo
 if ($LASTEXITCODE -ne 0) { throw 'Veroeffentlichung fehlgeschlagen.' }
 
-$exe = Join-Path $output 'WinGetStudio.exe'
+$exe = Join-Path $output 'WinGetUpdater.exe'
 if (-not (Test-Path $exe)) { throw "Erwartete Datei fehlt: $exe" }
 
 Step 'Selbsttest der veroeffentlichten Anwendung'
 & $exe --selftest | Out-Null
-$selfTestReport = Join-Path $env:TEMP 'wingetstudio-selftest.txt'
+$selfTestReport = Join-Path $env:TEMP 'wingetupdater-selftest.txt'
 if (Test-Path $selfTestReport) { Get-Content $selfTestReport | Write-Host }
 if ($LASTEXITCODE -ne 0) { throw 'Selbsttest fehlgeschlagen.' }
 

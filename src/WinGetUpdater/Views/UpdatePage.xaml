@@ -1,0 +1,269 @@
+<UserControl x:Class="WinGetUpdater.Views.UpdatePage"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:v="clr-namespace:WinGetUpdater.Views"
+             xmlns:svc="clr-namespace:WinGetUpdater.Services"
+             Loaded="OnLoaded">
+
+  <UserControl.Resources>
+    <v:BoolToVisibilityConverter x:Key="Vis" />
+    <v:BoolToVisibilityConverter x:Key="VisNot" Invert="True" />
+    <v:NotEmptyToVisibilityConverter x:Key="VisFull" />
+    <v:LineKindToBrushConverter x:Key="LineBrush" />
+
+    <Storyboard x:Key="Spin" RepeatBehavior="Forever">
+      <DoubleAnimation Storyboard.TargetName="SpinnerRotation"
+                       Storyboard.TargetProperty="Angle"
+                       From="0" To="360" Duration="0:0:1" />
+    </Storyboard>
+
+    <!-- Eine Zeile der Update-Liste. -->
+    <DataTemplate x:Key="UpdateItemTemplate">
+      <Border Padding="14,11" Margin="0,0,0,1" Background="{DynamicResource Bg.Card}">
+        <Grid>
+          <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="Auto" />
+            <ColumnDefinition Width="*" />
+            <ColumnDefinition Width="Auto" />
+            <ColumnDefinition Width="Auto" />
+            <ColumnDefinition Width="Auto" />
+          </Grid.ColumnDefinitions>
+
+          <CheckBox Grid.Column="0" Margin="0,0,14,0" VerticalAlignment="Center"
+                    IsChecked="{Binding IsSelected, Mode=TwoWay}" />
+
+          <StackPanel Grid.Column="1" VerticalAlignment="Center">
+            <TextBlock Text="{Binding Name}" FontSize="14" TextTrimming="CharacterEllipsis" />
+            <TextBlock Text="{Binding Id}" FontSize="11" Foreground="{DynamicResource Fg.Muted}"
+                       FontFamily="{StaticResource Font.Mono}" TextTrimming="CharacterEllipsis" />
+          </StackPanel>
+
+          <TextBlock Grid.Column="2" Text="{Binding VersionChange}" VerticalAlignment="Center"
+                     Margin="16,0" FontFamily="{StaticResource Font.Mono}" FontSize="12.5" />
+
+          <TextBlock Grid.Column="3" Text="{Binding Source}" VerticalAlignment="Center"
+                     Margin="0,0,16,0" Width="70"
+                     Style="{StaticResource Text.Caption}" />
+
+          <Border Grid.Column="4" MinWidth="118" VerticalAlignment="Center">
+            <StackPanel Orientation="Horizontal" HorizontalAlignment="Right">
+              <TextBlock Text="✓" FontSize="15" Margin="0,0,6,0" VerticalAlignment="Center"
+                         Foreground="{DynamicResource State.Ok}"
+                         Visibility="{Binding IsDone, Converter={StaticResource Vis}}" />
+              <TextBlock Text="✕" FontSize="15" Margin="0,0,6,0" VerticalAlignment="Center"
+                         Foreground="{DynamicResource State.Error}"
+                         Visibility="{Binding IsFailed, Converter={StaticResource Vis}}" />
+              <TextBlock Text="●" FontSize="13" Margin="0,0,6,0" VerticalAlignment="Center"
+                         Foreground="{DynamicResource Accent}"
+                         Visibility="{Binding IsRunning, Converter={StaticResource Vis}}" />
+              <TextBlock Text="{Binding Note}" VerticalAlignment="Center"
+                         Style="{StaticResource Text.Caption}"
+                         Visibility="{Binding HasNote, Converter={StaticResource Vis}}" />
+            </StackPanel>
+          </Border>
+        </Grid>
+      </Border>
+    </DataTemplate>
+  </UserControl.Resources>
+
+  <!-- Der Inhalt sitzt oben und wächst nach unten; die freie Fläche liegt hinter allem,
+       damit der Knopf immer direkt unter der Liste steht und nicht am Fensterrand klebt. -->
+  <Grid Margin="34,26,34,20">
+    <Grid.RowDefinitions>
+      <RowDefinition Height="Auto" />
+      <RowDefinition Height="Auto" />
+      <RowDefinition Height="Auto" />
+      <RowDefinition Height="Auto" />
+      <RowDefinition Height="Auto" />
+      <RowDefinition Height="*" />
+    </Grid.RowDefinitions>
+
+    <!-- ==================== Kopf ==================== -->
+    <Grid Grid.Row="0" Margin="0,0,0,20">
+      <Grid.ColumnDefinitions>
+        <ColumnDefinition Width="*" />
+        <ColumnDefinition Width="Auto" />
+      </Grid.ColumnDefinitions>
+
+      <StackPanel MaxWidth="720" HorizontalAlignment="Left">
+        <StackPanel Orientation="Horizontal">
+          <Canvas Width="18" Height="18" Margin="0,0,10,0" VerticalAlignment="Center"
+                  Visibility="{Binding IsChecking, Converter={StaticResource Vis}}"
+                  RenderTransformOrigin="0.5,0.5">
+            <Canvas.RenderTransform>
+              <RotateTransform x:Name="SpinnerRotation" CenterX="9" CenterY="9" />
+            </Canvas.RenderTransform>
+            <Ellipse Width="16" Height="16" Canvas.Left="1" Canvas.Top="1"
+                     Stroke="{DynamicResource Border.Strong}" StrokeThickness="2" />
+            <Path Stroke="{DynamicResource Accent}" StrokeThickness="2" StrokeStartLineCap="Round"
+                  Data="M 9,1 A 8,8 0 0 1 17,9" />
+          </Canvas>
+          <TextBlock Text="{Binding Headline}" FontSize="26" FontWeight="SemiBold" />
+        </StackPanel>
+        <TextBlock Text="{Binding SubLine}" Style="{StaticResource Text.Caption}"
+                   TextWrapping="Wrap" Margin="0,7,0,0" FontSize="13" LineHeight="19" />
+      </StackPanel>
+
+      <StackPanel Grid.Column="1" Orientation="Horizontal" VerticalAlignment="Top">
+        <Button Command="{Binding CancelCommand}" Margin="0,0,8,0"
+                Visibility="{Binding IsBusy, Converter={StaticResource Vis}}"
+                Content="{Binding [Run.Cancel], Source={x:Static svc:Localizer.Instance}}" />
+        <Button Command="{Binding RefreshCommand}"
+                Visibility="{Binding IsBusy, Converter={StaticResource VisNot}}"
+                Content="{Binding [Update.CheckAgain], Source={x:Static svc:Localizer.Instance}}" />
+      </StackPanel>
+    </Grid>
+
+    <!-- ==================== Fehlerhinweis ==================== -->
+    <Border Grid.Row="1" Margin="0,0,0,16" Padding="16,13" CornerRadius="6"
+            Background="{DynamicResource Danger.Subtle}"
+            BorderBrush="{DynamicResource State.Error}" BorderThickness="1"
+            Visibility="{Binding HasProblem, Converter={StaticResource Vis}}">
+      <StackPanel>
+        <TextBlock Text="{Binding Problem}" TextWrapping="Wrap" FontWeight="SemiBold" />
+        <TextBlock Text="{Binding ProblemDetail}" TextWrapping="Wrap" Margin="0,5,0,0"
+                   Style="{StaticResource Text.Caption}"
+                   FontFamily="{StaticResource Font.Mono}" FontSize="11.5"
+                   Visibility="{Binding ProblemDetail, Converter={StaticResource VisFull}}" />
+      </StackPanel>
+    </Border>
+
+    <!-- ==================== Inhalt ==================== -->
+    <!-- Alles aktuell: mittig über die restliche Fläche -->
+    <StackPanel Grid.Row="2" Grid.RowSpan="4" VerticalAlignment="Center" HorizontalAlignment="Center"
+                Visibility="{Binding ShowUpToDate, Converter={StaticResource Vis}}">
+      <Border Width="72" Height="72" CornerRadius="36" HorizontalAlignment="Center"
+              Background="{DynamicResource Ok.Subtle}">
+        <TextBlock Text="✓" FontSize="38" HorizontalAlignment="Center" VerticalAlignment="Center"
+                   Foreground="{DynamicResource State.Ok}" />
+      </Border>
+      <TextBlock Text="{Binding [Update.HeadlineUpToDate], Source={x:Static svc:Localizer.Instance}}"
+                 FontSize="17" FontWeight="SemiBold" Margin="0,18,0,0" HorizontalAlignment="Center" />
+    </StackPanel>
+
+    <!-- Liste: wächst mit dem Inhalt, scrollt ab einer Höhe, die den Knopf sichtbar lässt. -->
+    <Grid Grid.Row="2">
+      <Border Style="{StaticResource Card}" Padding="0" MaxHeight="440"
+              Visibility="{Binding ShowList, Converter={StaticResource Vis}}">
+        <Grid>
+          <Grid.RowDefinitions>
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="*" />
+          </Grid.RowDefinitions>
+
+          <Border Grid.Row="0" Padding="14,9" BorderThickness="0,0,0,1"
+                  BorderBrush="{DynamicResource Border.Default}"
+                  Background="{DynamicResource Bg.CardAlt}">
+            <Grid>
+              <StackPanel Orientation="Horizontal">
+                <Button Style="{StaticResource Btn.Ghost}" Padding="0,2" Margin="0,0,18,0"
+                        Command="{Binding SelectAllCommand}"
+                        Content="{Binding [Update.SelectAll], Source={x:Static svc:Localizer.Instance}}" />
+                <Button Style="{StaticResource Btn.Ghost}" Padding="0,2"
+                        Command="{Binding SelectNoneCommand}"
+                        Content="{Binding [Update.SelectNone], Source={x:Static svc:Localizer.Instance}}" />
+              </StackPanel>
+              <TextBlock Text="{Binding SelectionText}" HorizontalAlignment="Right"
+                         VerticalAlignment="Center" Style="{StaticResource Text.Caption}" />
+            </Grid>
+          </Border>
+
+          <ScrollViewer Grid.Row="1" VerticalScrollBarVisibility="Auto">
+            <ItemsControl ItemsSource="{Binding Items}" ItemTemplate="{StaticResource UpdateItemTemplate}"
+                          Background="{DynamicResource Border.Default}" />
+          </ScrollViewer>
+        </Grid>
+      </Border>
+    </Grid>
+
+    <!-- ==================== Aktionsleiste ==================== -->
+    <Grid Grid.Row="3" Margin="0,18,0,0"
+          Visibility="{Binding ShowList, Converter={StaticResource Vis}}">
+      <Grid.ColumnDefinitions>
+        <ColumnDefinition Width="Auto" />
+        <ColumnDefinition Width="*" />
+        <ColumnDefinition Width="Auto" />
+      </Grid.ColumnDefinitions>
+
+      <Button Grid.Column="0" Style="{StaticResource Btn.Primary}" Padding="24,10" FontSize="14"
+              Command="{Binding RunCommand}" Content="{Binding RunButtonText}" />
+
+      <TextBlock Grid.Column="1" Text="{Binding OptionSummary}" VerticalAlignment="Center"
+                 Margin="16,0" Style="{StaticResource Text.Caption}" TextTrimming="CharacterEllipsis" />
+
+      <StackPanel Grid.Column="2" Orientation="Horizontal">
+        <Button Style="{StaticResource Btn.Ghost}" Command="{Binding ToggleOptionsCommand}"
+                Content="{Binding [Update.Options], Source={x:Static svc:Localizer.Instance}}" />
+        <Button Style="{StaticResource Btn.Ghost}" Command="{Binding ToggleOutputCommand}"
+                Content="{Binding OutputButtonText}" />
+      </StackPanel>
+    </Grid>
+
+    <!-- ==================== Ausklapper ==================== -->
+    <StackPanel Grid.Row="4" Margin="0,14,0,0">
+
+      <!-- Optionen -->
+      <Border Style="{StaticResource Card}" Padding="18,15" Margin="0,0,0,12"
+              Visibility="{Binding ShowOptions, Converter={StaticResource Vis}}">
+        <StackPanel>
+          <CheckBox IsChecked="{Binding Silent, Mode=TwoWay}" Margin="0,0,0,3"
+                    Content="{Binding [Update.OptSilent], Source={x:Static svc:Localizer.Instance}}" />
+          <TextBlock Text="{Binding [Update.OptSilentHelp], Source={x:Static svc:Localizer.Instance}}"
+                     Style="{StaticResource Text.Caption}" Margin="25,0,0,12" TextWrapping="Wrap" />
+
+          <CheckBox IsChecked="{Binding AcceptAgreements, Mode=TwoWay}" Margin="0,0,0,3"
+                    Content="{Binding [Update.OptAgreements], Source={x:Static svc:Localizer.Instance}}" />
+          <TextBlock Text="{Binding [Update.OptAgreementsHelp], Source={x:Static svc:Localizer.Instance}}"
+                     Style="{StaticResource Text.Caption}" Margin="25,0,0,12" TextWrapping="Wrap" />
+
+          <CheckBox IsChecked="{Binding IncludeUnknown, Mode=TwoWay}" Margin="0,0,0,3"
+                    Content="{Binding [Update.OptUnknown], Source={x:Static svc:Localizer.Instance}}" />
+          <TextBlock Text="{Binding [Update.OptUnknownHelp], Source={x:Static svc:Localizer.Instance}}"
+                     Style="{StaticResource Text.Caption}" Margin="25,0,0,12" TextWrapping="Wrap" />
+
+          <CheckBox IsChecked="{Binding IncludePinned, Mode=TwoWay}" Margin="0,0,0,3"
+                    Content="{Binding [Update.OptPinned], Source={x:Static svc:Localizer.Instance}}" />
+          <TextBlock Text="{Binding [Update.OptPinnedHelp], Source={x:Static svc:Localizer.Instance}}"
+                     Style="{StaticResource Text.Caption}" Margin="25,0,0,12" TextWrapping="Wrap" />
+
+          <CheckBox IsChecked="{Binding Elevated, Mode=TwoWay}" IsEnabled="{Binding CanElevate}"
+                    Margin="0,0,0,3"
+                    Content="{Binding [Update.OptAdmin], Source={x:Static svc:Localizer.Instance}}" />
+          <TextBlock Text="{Binding [Update.OptAdminHelp], Source={x:Static svc:Localizer.Instance}}"
+                     Style="{StaticResource Text.Caption}" Margin="25,0,0,14" TextWrapping="Wrap" />
+
+          <Border Background="{DynamicResource Bg.Console}" CornerRadius="4" Padding="12,9">
+            <StackPanel>
+              <TextBlock Text="{Binding [Update.ShowCommand], Source={x:Static svc:Localizer.Instance}}"
+                         FontSize="10.5" Foreground="{DynamicResource Fg.Muted}" Margin="0,0,0,4" />
+              <TextBox Text="{Binding PreviewLine, Mode=OneWay}" IsReadOnly="True"
+                       Background="Transparent" BorderThickness="0" Padding="0" TextWrapping="Wrap"
+                       Foreground="{DynamicResource Fg.Console}"
+                       FontFamily="{StaticResource Font.Mono}" FontSize="12" />
+            </StackPanel>
+          </Border>
+        </StackPanel>
+      </Border>
+
+      <!-- Verlauf -->
+      <Border Background="{DynamicResource Bg.Console}" CornerRadius="6" Height="180"
+              BorderBrush="{DynamicResource Border.Default}" BorderThickness="1"
+              Visibility="{Binding ShowOutput, Converter={StaticResource Vis}}">
+        <ScrollViewer x:Name="OutputScroll" Padding="12,9" VerticalScrollBarVisibility="Auto">
+          <ItemsControl ItemsSource="{Binding Output}" VirtualizingPanel.IsVirtualizing="True">
+            <ItemsControl.ItemsPanel>
+              <ItemsPanelTemplate><VirtualizingStackPanel /></ItemsPanelTemplate>
+            </ItemsControl.ItemsPanel>
+            <ItemsControl.ItemTemplate>
+              <DataTemplate>
+                <TextBlock Text="{Binding Text}" FontFamily="{StaticResource Font.Mono}"
+                           FontSize="12" TextWrapping="Wrap"
+                           Foreground="{Binding Kind, Converter={StaticResource LineBrush}}" />
+              </DataTemplate>
+            </ItemsControl.ItemTemplate>
+          </ItemsControl>
+        </ScrollViewer>
+      </Border>
+    </StackPanel>
+  </Grid>
+</UserControl>
