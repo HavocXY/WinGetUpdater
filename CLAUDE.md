@@ -172,21 +172,21 @@ requirement made testable.
 
   Fixtures that are *not* verbatim winget output must be built from column widths, never from
   hand-aligned literals — hand alignment silently rots.
-* **The palette follows the Anthropic brand guidelines** (`Dark.xaml` / `Light.xaml`), and three
-  rules fall out of it. Keep them when touching colours:
+* **Colour rules** (`Dark.xaml` / `Light.xaml`) — keep all four when touching the palette:
   - Both theme files must define the **same 26 keys**. A key defined in only one file leaves that
     brush unresolved after a theme switch.
-  - **Dark text on orange, never white.** `#141413` on `#D97757` is 5.9:1; white is 3.1:1 and
-    fails. That is why `Fg.OnAccent` is dark in *both* themes.
-  - Orange is the action colour, so it cannot also mean "error". Errors use a separate red and
-    warnings a gold — and every state additionally carries its own glyph (✓ / ✕ / ●) and wording,
-    so colour is never the sole signal. Red and orange are the classic colour-blindness pair;
-    the glyph is what actually carries the meaning.
-  - Every foreground/background pair in use clears 4.5:1. If you change a colour, re-measure
-    rather than eyeball it.
-* Poppins and Lora (the brand's typefaces) are **not** used: they are not installed on this
-  machine, and WPF cannot fetch webfonts, so the app would silently fall back to Arial/Georgia.
-  Segoe UI stays until the fonts are bundled with the app.
+  - **`Accent` deliberately has a different value per theme** — `#3FA294` dark, `#1C6E62` light.
+    No single mid tone can clear 4.5:1 against both a near-white and a near-black ground; that is
+    arithmetic, not taste. `Fg.OnAccent` flips with it (dark text on the light accent, light text
+    on the dark one). Do not "unify" these back into one value.
+  - The accent is the **action** colour and never signals state. Success, warning and error have
+    their own colours *and* their own glyph (✓ / ✕ / ●) and wording, so colour is never the sole
+    signal — that is what keeps it legible for colour-blind users.
+  - Every foreground/background pair in use clears 4.5:1, including accent-as-text on the card and
+    console grounds and the state colours on `Accent.Subtle`. If you change a colour, **measure**;
+    the eye is unreliable here, and two of these values were below the line on first attempt.
+* No custom typefaces. WPF cannot fetch webfonts, so anything not installed on the target machine
+  falls back silently — Segoe UI stays unless a font is bundled with the app.
 * **`winget.exe` is not reliably on PATH.** `WingetLocator` tries the App Execution Alias, then
   PATH, then globs `Microsoft.DesktopAppInstaller_*_8wekyb3d8bbwe` under WindowsApps. If none
   works the app shows an explanatory page instead of failing.

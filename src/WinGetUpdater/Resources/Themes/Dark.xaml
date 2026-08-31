@@ -3,19 +3,22 @@
                     xmlns:sys="clr-namespace:System;assembly=System.Runtime">
 
   <!--
-    Farbwelt nach den Anthropic-Markenrichtlinien.
+    Warme Neutraltoene mit eigenem Akzent.
 
-    Grundtoene: Dark #141413, Light #faf9f5, Mid Gray #b0aea5, Light Gray #e8e6dc.
-    Akzente:    Orange #d97757 (primaer), Blau #6a9bcc, Gruen #788c5d.
+    Grundflaeche und Schrift bleiben warm gehalten (nahezu Schwarz, gebrochenes Weiss,
+    dazu zwei Grautoene). Der Akzent ist bewusst ein eigener Ton - ein Blaugruen, das
+    zu den warmen Neutralen den Gegenpol bildet und die Anwendung keiner fremden
+    Marke zuordnet.
 
-    Zwei Festlegungen, die sich aus der Palette ergeben:
+    Drei Festlegungen, alle nachgemessen:
 
-    - Auf Orange steht dunkler Text, nicht weisser. #141413 auf #d97757 hat ein
-      Kontrastverhaeltnis von 5,9:1, Weiss nur 3,1:1 und faellt damit unter die
-      Lesbarkeitsschwelle.
-    - Orange ist als Aktionsfarbe belegt, deshalb kann es nicht zugleich Fehler
-      anzeigen. Fehler bekommen ein deutlich roteres Rot, Warnungen ein Gold.
-      Zusaetzlich unterscheiden sich beide durch Symbol und Text, nie nur durch Farbe.
+    - Der Akzent hat je Design einen eigenen Wert. Ein einzelner mittlerer Ton kann
+      nicht gleichzeitig auf hellem und auf dunklem Grund 4,5:1 erreichen; hier ist
+      er deshalb hell, in Light.xaml dunkel.
+    - Auf dem hellen Akzent steht dunkler Text (#141413 auf #3FA294: 6,0:1).
+    - Der Akzent ist als Aktionsfarbe belegt und bedeutet nie einen Zustand. Erfolg,
+      Warnung und Fehler haben eigene Farben - und zusaetzlich eigene Zeichen und
+      Texte, damit die Bedeutung nie allein an der Farbe haengt.
   -->
 
   <sys:String x:Key="Theme.Name">Dark</sys:String>
@@ -27,7 +30,7 @@
   <SolidColorBrush x:Key="Bg.Input"     Color="#232320" />
   <SolidColorBrush x:Key="Bg.Console"   Color="#0B0B0A" />
   <SolidColorBrush x:Key="Bg.Hover"     Color="#2A2A26" />
-  <SolidColorBrush x:Key="Bg.Selected"  Color="#3A2A22" />
+  <SolidColorBrush x:Key="Bg.Selected"  Color="#1F332F" />
 
   <SolidColorBrush x:Key="Border.Default" Color="#2E2E2A" />
   <SolidColorBrush x:Key="Border.Strong"  Color="#45443E" />
@@ -38,10 +41,10 @@
   <SolidColorBrush x:Key="Fg.OnAccent"  Color="#141413" />
   <SolidColorBrush x:Key="Fg.Console"   Color="#E8E6DC" />
 
-  <SolidColorBrush x:Key="Accent"        Color="#D97757" />
-  <SolidColorBrush x:Key="Accent.Hover"  Color="#E48F71" />
-  <SolidColorBrush x:Key="Accent.Press"  Color="#C05F40" />
-  <SolidColorBrush x:Key="Accent.Subtle" Color="#2E211B" />
+  <SolidColorBrush x:Key="Accent"        Color="#3FA294" />
+  <SolidColorBrush x:Key="Accent.Hover"  Color="#57B5A7" />
+  <SolidColorBrush x:Key="Accent.Press"  Color="#2E8B7D" />
+  <SolidColorBrush x:Key="Accent.Subtle" Color="#172623" />
 
   <SolidColorBrush x:Key="State.Ok"    Color="#8FA871" />
   <SolidColorBrush x:Key="State.Warn"  Color="#C9973F" />

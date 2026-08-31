@@ -178,23 +178,24 @@ Die Testdateien unter `tests\WinGetUpdater.Tests\Fixtures\` sind unveränderte O
 
 ### Die Farbwelt
 
-Die Palette folgt den Anthropic-Markenrichtlinien: Dark `#141413`, Cream `#faf9f5`,
-Mid Gray `#b0aea5`, Light Gray `#e8e6dc`, dazu Orange `#d97757` als Akzent sowie Blau und Grün.
-Drei Festlegungen ergeben sich daraus:
+Warme Neutraltöne — nahezu Schwarz `#141413`, gebrochenes Weiß `#faf9f5`, dazu zwei Grautöne —
+mit einem Blaugrün als Akzent. Drei Festlegungen, alle nachgemessen:
 
-* **Auf Orange steht dunkler Text, nicht weißer.** `#141413` auf `#d97757` erreicht 5,9:1,
-  Weiß nur 3,1:1 und fällt damit unter die Lesbarkeitsschwelle. Deshalb ist `Fg.OnAccent` in
-  beiden Designs dunkel.
-* **Orange ist die Aktionsfarbe und kann nicht zugleich Fehler bedeuten.** Fehler bekommen ein
-  eigenes Rot, Warnungen ein Gold — und jeder Zustand trägt zusätzlich sein eigenes Zeichen
-  (✓ / ✕ / ●) und einen Text. Rot und Orange sind das klassische Verwechslungspaar bei
-  Farbfehlsichtigkeit; die Bedeutung hängt deshalb nie an der Farbe allein.
-* **Jede verwendete Vordergrund-/Hintergrundpaarung erreicht mindestens 4,5:1.** Nachgemessen,
-  nicht geschätzt.
+* **Der Akzent hat je Design einen eigenen Wert:** `#3fa294` im dunklen, `#1c6e62` im hellen.
+  Ein einzelner mittlerer Ton kann nicht gleichzeitig auf nahezu weißem und auf nahezu schwarzem
+  Grund 4,5:1 erreichen — das ist Arithmetik, keine Geschmacksfrage. Entsprechend kehrt sich auch
+  die Schrift darauf um: dunkel auf dem hellen Akzent, hell auf dem dunklen.
+* **Der Akzent ist die Aktionsfarbe und bedeutet nie einen Zustand.** Erfolg, Warnung und Fehler
+  haben eigene Farben — und jeder Zustand trägt zusätzlich sein eigenes Zeichen (✓ / ✕ / ●) und
+  einen Text. Die Bedeutung hängt damit nie an der Farbe allein, was sie auch bei
+  Farbfehlsichtigkeit lesbar hält.
+* **Jede verwendete Vordergrund-/Hintergrundpaarung erreicht mindestens 4,5:1** — einschließlich
+  des Akzents als Textfarbe und der Zustandsfarben auf getönten Flächen. Nachgemessen, nicht
+  geschätzt: zwei Werte lagen im ersten Anlauf darunter.
 
-Die Schriften der Marke (Poppins, Lora) sind bewusst *nicht* übernommen: sie sind auf dem
-Zielsystem nicht installiert, und WPF kann keine Webschriften nachladen — die Oberfläche würde
-still auf Arial und Georgia zurückfallen. Es bleibt bei Segoe UI.
+Eigene Schriften kommen nicht zum Einsatz. WPF kann keine Webschriften nachladen; was auf dem
+Zielrechner fehlt, fällt still auf einen Ersatz zurück. Deshalb bleibt es bei Segoe UI, solange
+keine Schrift mit der Anwendung ausgeliefert wird.
 
 ### Die Rechteerhöhung
 

@@ -3,11 +3,14 @@
                     xmlns:sys="clr-namespace:System;assembly=System.Runtime">
 
   <!--
-    Helle Fassung derselben Markenpalette. Die Schluessel sind deckungsgleich mit
-    Dark.xaml; nur die Werte wechseln. Cream #faf9f5 traegt die Flaeche, #e8e6dc und
-    #b0aea5 die Linien, Orange bleibt die Aktionsfarbe.
+    Helle Fassung. Die Schluessel sind deckungsgleich mit Dark.xaml; nur die Werte wechseln.
 
-    Auf Orange steht auch hier dunkler Text - der Knopf sieht in beiden Designs gleich aus.
+    Zwei Werte kehren sich gegenueber dem dunklen Design bewusst um:
+
+    - Der Akzent ist hier dunkel (#1C6E62 statt #3FA294), weil ein heller Ton auf
+      gebrochenem Weiss keine 4,5:1 erreicht.
+    - Entsprechend traegt der Akzent hier helle Schrift, dort dunkle. Fg.OnAccent ist
+      deshalb pro Design verschieden; beide Fassungen liegen bei 5,8:1 bzw. 6,0:1.
   -->
 
   <sys:String x:Key="Theme.Name">Light</sys:String>
@@ -19,7 +22,7 @@
   <SolidColorBrush x:Key="Bg.Input"     Color="#FFFFFF" />
   <SolidColorBrush x:Key="Bg.Console"   Color="#FDFCF8" />
   <SolidColorBrush x:Key="Bg.Hover"     Color="#ECEAE0" />
-  <SolidColorBrush x:Key="Bg.Selected"  Color="#F6E4DC" />
+  <SolidColorBrush x:Key="Bg.Selected"  Color="#DCEBE7" />
 
   <SolidColorBrush x:Key="Border.Default" Color="#E8E6DC" />
   <SolidColorBrush x:Key="Border.Strong"  Color="#B0AEA5" />
@@ -27,13 +30,13 @@
   <SolidColorBrush x:Key="Fg.Primary"   Color="#141413" />
   <SolidColorBrush x:Key="Fg.Secondary" Color="#57564F" />
   <SolidColorBrush x:Key="Fg.Muted"     Color="#71706A" />
-  <SolidColorBrush x:Key="Fg.OnAccent"  Color="#141413" />
+  <SolidColorBrush x:Key="Fg.OnAccent"  Color="#FAF9F5" />
   <SolidColorBrush x:Key="Fg.Console"   Color="#24231F" />
 
-  <SolidColorBrush x:Key="Accent"        Color="#D97757" />
-  <SolidColorBrush x:Key="Accent.Hover"  Color="#C86544" />
-  <SolidColorBrush x:Key="Accent.Press"  Color="#B3543A" />
-  <SolidColorBrush x:Key="Accent.Subtle" Color="#F9ECE6" />
+  <SolidColorBrush x:Key="Accent"        Color="#1C6E62" />
+  <SolidColorBrush x:Key="Accent.Hover"  Color="#175C52" />
+  <SolidColorBrush x:Key="Accent.Press"  Color="#124B43" />
+  <SolidColorBrush x:Key="Accent.Subtle" Color="#EDF5F3" />
 
   <SolidColorBrush x:Key="State.Ok"    Color="#5F7148" />
   <SolidColorBrush x:Key="State.Warn"  Color="#8F661B" />
