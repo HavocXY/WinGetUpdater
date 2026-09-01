@@ -138,3 +138,28 @@ public sealed class LogLevelToBrushConverter : IValueConverter
     public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture) =>
         throw new NotSupportedException();
 }
+
+/// <summary>
+/// Rechnet eine Hoehe in einen Anteil davon um und begrenzt das Ergebnis.
+///
+/// Damit richtet sich die Hoehe des Optionsbereichs nach dem Fenster: auf einem grossen
+/// Bildschirm darf er wachsen, auf einem kleinen bleibt trotzdem Platz fuer die
+/// Ergebnisliste. Eine feste Hoehe kann das nicht - sie ist entweder oben zu knapp
+/// oder unten zu grosszuegig.
+/// </summary>
+public sealed class FractionOfHeightConverter : IValueConverter
+{
+    public double Fraction { get; set; } = 0.3;
+    public double Min { get; set; } = 120;
+    public double Max { get; set; } = 480;
+
+    public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
+    {
+        // Beim ersten Messdurchlauf steht die Hoehe noch nicht fest; dann gilt das Minimum.
+        if (value is not double height || double.IsNaN(height) || height <= 0) return Min;
+        return Math.Clamp(height * Fraction, Min, Max);
+    }
+
+    public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture) =>
+        throw new NotSupportedException();
+}

@@ -77,6 +77,9 @@ public partial class App : Application
             if (queryIndex >= 0 && queryIndex + 1 < args.Length)
                 shell.Current?.Preset("query", args[queryIndex + 1]);
 
+            if (args.Contains("--hide-options", StringComparer.OrdinalIgnoreCase) && shell.Current is not null)
+                shell.Current.OptionsVisible = false;
+
             var run = args.Contains("--run", StringComparer.OrdinalIgnoreCase);
 
             if (shell.Mode == AppMode.Updates)

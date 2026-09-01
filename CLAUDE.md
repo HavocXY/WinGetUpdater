@@ -58,6 +58,8 @@ WinGetUpdater.exe --screenshot out.png [flags]
 #   --run            runs the selected command (advanced mode)
 #   --update         actually performs the updates (CHANGES THE MACHINE — ask first)
 #   --options        opens the update options expander
+#   --hide-options   collapses the option card of the selected command (advanced mode),
+#                    the state the "Optionen ausblenden" button produces
 #   --output         opens the update log panel
 #   --log            opens the error-log drawer
 #   --light --english  theme and language
@@ -172,6 +174,14 @@ requirement made testable.
 
   Fixtures that are *not* verbatim winget output must be built from column widths, never from
   hand-aligned literals — hand alignment silently rots.
+* **On a command page the result list owns the leftover height.** The option card is capped at a
+  *fraction* of the page height (`FractionOfHeightConverter`, 28 %, min 110, max 440), never at a
+  fixed pixel value: a fixed cap is too tight on a small window and too generous on a large one,
+  and the 330 px one it replaced left `winget list` with a single visible row. The card scrolls,
+  so nothing becomes unreachable. **Do not put anything else of fixed height between the header
+  and the grid** — every pixel added there comes out of the list. "Optionen ausblenden" in the
+  page header hides the card completely while the command line and the Run button stay put; the
+  preview line still shows every option that is set, so nothing is hidden from view.
 * **Colour rules** (`Dark.xaml` / `Light.xaml`) — keep all four when touching the palette:
   - Both theme files must define the **same 26 keys**. A key defined in only one file leaves that
     brush unresolved after a theme switch.

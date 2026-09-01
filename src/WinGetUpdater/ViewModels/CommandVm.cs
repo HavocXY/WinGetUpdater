@@ -72,6 +72,7 @@ public sealed class CommandVm : ObservableObject
 
         RunCommand = new AsyncRelayCommand(RunAsync, () => State != RunState.Running);
         CancelCommand = new RelayCommand(() => _cancellation?.Cancel(), () => State == RunState.Running);
+        ToggleOptionsCommand = new RelayCommand(() => OptionsVisible = !OptionsVisible);
         CopyCommand = new RelayCommand(CopyPreview);
         SaveScriptCommand = new RelayCommand(SaveScript);
         ResetCommand = new RelayCommand(Reset);
@@ -122,6 +123,31 @@ public sealed class CommandVm : ObservableObject
     public RelayCommand SaveScriptCommand { get; }
     public RelayCommand ResetCommand { get; }
     public RelayCommand OpenDocsCommand { get; }
+    public RelayCommand ToggleOptionsCommand { get; }
+
+    // Ansichtseinstellung, keine Eigenschaft eines einzelnen Befehls: wer die Eingabefelder
+    // wegklappt, um die Ergebnisliste zu sehen, will das auch nach dem Wechsel auf einen
+    // anderen Befehl so vorfinden. Deshalb statisch fuer alle Befehlsseiten zusammen.
+    private static bool _optionsVisible = true;
+
+    /// <summary>
+    /// Blendet die Eingabefelder aus. Die Befehlszeile bleibt sichtbar - was gesetzt ist,
+    /// steht dort weiterhin vollstaendig, es geht also keine Information verloren.
+    /// </summary>
+    public bool OptionsVisible
+    {
+        get => _optionsVisible;
+        set
+        {
+            if (_optionsVisible == value) return;
+            _optionsVisible = value;
+            OnPropertyChanged();
+            OnPropertyChanged(nameof(OptionsToggleText));
+        }
+    }
+
+    public string OptionsToggleText =>
+        Localizer.Instance[_optionsVisible ? "Options.Hide" : "Options.Show"];
 
     public string ExtraArguments
     {
@@ -156,6 +182,7 @@ public sealed class CommandVm : ObservableObject
         {
             if (!Set(ref _state, value)) return;
             OnPropertyChanged(nameof(IsRunning));
+            OnPropertyChanged(nameof(TableHint));
             RunCommand.RaiseCanExecuteChanged();
             CancelCommand.RaiseCanExecuteChanged();
         }
@@ -207,11 +234,29 @@ public sealed class CommandVm : ObservableObject
         get => _rowCount;
         private set
         {
-            if (Set(ref _rowCount, value)) OnPropertyChanged(nameof(RowCountText));
+            if (!Set(ref _rowCount, value)) return;
+            OnPropertyChanged(nameof(RowCountText));
+            OnPropertyChanged(nameof(TableHint));
         }
     }
 
     public string RowCountText => Localizer.Instance.Format("Result.Rows", RowCount);
+
+    /// <summary>
+    /// Erklaert eine leere Liste, statt eine leere Flaeche stehen zu lassen: noch nichts
+    /// ausgefuehrt, vom Filter weggenommen, oder eine Ausgabe, die keine Tabelle war.
+    /// </summary>
+    public string TableHint
+    {
+        get
+        {
+            if (RowCount > 0) return "";
+            if (State == RunState.Idle) return Localizer.Instance["Result.Empty"];
+            if (State == RunState.Running) return "";
+            if (_tableFilter.Trim().Length > 0) return Localizer.Instance["Result.NoMatch"];
+            return Localizer.Instance["Result.NoTable"];
+        }
+    }
 
     public string TableFilter
     {
@@ -271,6 +316,8 @@ public sealed class CommandVm : ObservableObject
         OnPropertyChanged(nameof(GlobalHeader));
         OnPropertyChanged(nameof(ElevationNote));
         OnPropertyChanged(nameof(RowCountText));
+        OnPropertyChanged(nameof(OptionsToggleText));
+        OnPropertyChanged(nameof(TableHint));
     }
 
     private IReadOnlyList<OptionVm> Build(IEnumerable<string> ids) =>
@@ -421,6 +468,7 @@ public sealed class CommandVm : ObservableObject
             Rows.Add(new TableRowVm(cells, id));
         }
         RowCount = Rows.Count;
+        OnPropertyChanged(nameof(TableHint));
     }
 
     private void AppendLine(string text, LineKind kind)

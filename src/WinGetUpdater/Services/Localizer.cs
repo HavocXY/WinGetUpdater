@@ -176,6 +176,12 @@ public sealed class Localizer : INotifyPropertyChanged
         ["Options.None"] = ("Dieser Befehl hat keine eigenen Optionen.", "This command has no options of its own."),
         ["Options.Count"] = ("{0} Optionen", "{0} options"),
         ["Options.Reset"] = ("Zurücksetzen", "Reset"),
+        ["Options.Hide"] = ("Optionen ausblenden", "Hide options"),
+        ["Options.Show"] = ("Optionen einblenden", "Show options"),
+        ["Options.HideHint"] = ("Blendet die Eingabefelder aus, damit die Ergebnisliste den " +
+                                "ganzen Platz bekommt. Die Befehlszeile bleibt sichtbar.",
+                                "Hides the input fields so the result list gets the whole page. " +
+                                "The command line stays visible."),
         ["Options.Risky"] = ("Hebt eine Schutzfunktion auf.", "Disables a safeguard."),
         ["Options.Add"] = ("Hinzufügen", "Add"),
         ["Options.Browse"] = ("Durchsuchen", "Browse"),
@@ -195,8 +201,11 @@ public sealed class Localizer : INotifyPropertyChanged
         ["Result.Output"] = ("Ausgabe", "Output"),
         ["Result.Rows"] = ("{0} Zeilen", "{0} rows"),
         ["Result.Empty"] = ("Noch nichts ausgeführt.", "Nothing has been run yet."),
-        ["Result.NoTable"] = ("Die Ausgabe ließ sich nicht als Tabelle lesen – siehe Ausgabe.",
-                              "The output could not be read as a table – see Output."),
+        // Deckt beides ab: winget hat nichts gefunden, und winget hat etwas ausgegeben,
+        // das keine Tabelle war. In beiden Faellen steht die Wahrheit im Reiter „Ausgabe“.
+        ["Result.NoTable"] = ("Keine Ergebnisse. Die vollständige Ausgabe steht im Reiter „Ausgabe“.",
+                              "No results. The full output is on the \"Output\" tab."),
+        ["Result.NoMatch"] = ("Kein Eintrag passt zum Filter.", "No entry matches the filter."),
         ["Result.Filter"] = ("Ergebnisse filtern", "Filter results"),
 
         ["Status.Success"] = ("Erfolgreich", "Succeeded"),
