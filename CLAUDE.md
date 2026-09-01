@@ -182,6 +182,14 @@ requirement made testable.
   and the grid** — every pixel added there comes out of the list. "Optionen ausblenden" in the
   page header hides the card completely while the command line and the Run button stay put; the
   preview line still shows every option that is set, so nothing is hidden from view.
+* **`output` in the schema decides the result tabs, and the view follows the run.** `"table"`
+  gives a command the *Ergebnisse* grid — with filter and the row actions — next to the raw
+  *Ausgabe*; `"stream"` and `"text"` leave only the raw output. `upgrade` is `"table"` even
+  though the same command also installs: without a package it prints the upgrade table, and
+  that list is the whole point of the page. While a run is going the page shows the raw output
+  (`RunAsync`), and switches to the grid the moment a table came out of it (`BuildTable`) —
+  otherwise a table command stares at an empty grid while its lines stream past unseen, and an
+  actual `upgrade <package>` would hide its own progress behind an empty one.
 * **Colour rules** (`Dark.xaml` / `Light.xaml`) — keep all four when touching the palette:
   - Both theme files must define the **same 26 keys**. A key defined in only one file leaves that
     brush unresolved after a theme switch.

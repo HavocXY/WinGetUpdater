@@ -362,7 +362,7 @@
       "id": "upgrade", "path": ["upgrade"], "group": "manage", "docs": "upgrade", "aliases": ["update"],
       "title": { "de": "Aktualisieren", "en": "Upgrade" },
       "desc": { "de": "Verfügbare Updates anzeigen und installieren. Ohne Argumente wird nur die Liste ausgegeben.", "en": "Show and install available upgrades. Without arguments only the list is printed." },
-      "positional": "query", "output": "stream", "elevation": "auto",
+      "positional": "query", "output": "table", "elevation": "auto",
       "primary": ["query", "id", "exact", "recurse", "version", "silent", "interactive", "scope", "includeUnknown", "includePinned"],
       "advanced": ["name", "moniker", "manifestPath", "source", "architecture", "installerType", "locale", "location", "log", "custom", "override", "purge", "uninstallPrevious", "allowReboot", "skipDependencies", "ignoreSecurityHash", "ignoreLocalArchiveMalwareScan", "acceptPackageAgreements", "acceptSourceAgreements", "header", "authenticationMode", "authenticationAccount", "force"]
     },

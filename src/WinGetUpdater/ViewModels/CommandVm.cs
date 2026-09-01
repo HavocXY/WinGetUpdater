@@ -369,6 +369,13 @@ public sealed class CommandVm : ObservableObject
         Table = null;
         ShowTable = false;
         RowCount = 0;
+
+        // Die Ansicht folgt dem Lauf: solange er laeuft, ist die mitlaufende Ausgabe das
+        // einzige, was es zu sehen gibt - ein leeres Gitter waere nur eine leere Flaeche.
+        // Entsteht am Ende eine Tabelle, schaltet BuildTable zurueck auf das Gitter.
+        OutputView = true;
+        OnPropertyChanged(nameof(OutputView));
+
         State = RunState.Running;
         StatusText = Localizer.Instance["Run.Running"];
 
@@ -449,6 +456,8 @@ public sealed class CommandVm : ObservableObject
 
         RowCount = Rows.Count;
         ShowTable = true;
+        OutputView = false;
+        OnPropertyChanged(nameof(OutputView));
         ApplyTableFilter();
     }
 
