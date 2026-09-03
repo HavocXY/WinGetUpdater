@@ -53,11 +53,11 @@ public sealed class UpdateItem : ObservableObject
     public bool IsFailed => _state == ItemState.Failed;
     public bool IsRestored => _state == ItemState.Restored;
 
-    /// <summary>Ob die zuvor installierte Version bekannt ist - sonst lässt sich nichts zurücksetzen.</summary>
+    /// <summary>Ob die zuvor installierte Version bekannt ist - sonst lässt sich nichts zurückrollen.</summary>
     public bool HasPreviousVersion =>
         !string.IsNullOrWhiteSpace(CurrentVersion) && CurrentVersion != "—";
 
-    /// <summary>Ob der „Zurücksetzen“-Knopf an dieser Zeile erscheinen darf.</summary>
+    /// <summary>Ob der „Zurückrollen“-Knopf an dieser Zeile erscheinen darf.</summary>
     public bool CanRestore => _state == ItemState.Failed && HasPreviousVersion;
 
     /// <summary>Knopf-Hinweis mit der Version, die neu installiert würde.</summary>
@@ -544,7 +544,7 @@ public sealed class UpdateVm : ObservableObject
         });
 
     /// <summary>
-    /// Busy bedeutet auch „ein Zurücksetzen läuft“. Deshalb melden alle Befehle hier
+    /// Busy bedeutet auch „ein Zurückrollen läuft“. Deshalb melden alle Befehle hier
     /// ihre Erreichbarkeit, wenn sich dieser Teil umdreht.
     /// </summary>
     private void RaiseBusyState()

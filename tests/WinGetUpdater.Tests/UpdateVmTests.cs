@@ -148,6 +148,28 @@ public class UpdateVmTests
     }
 
     [Fact]
+    public void Rollback_und_OptionenReset_vertragen_getrennte_Namen()
+    {
+        // Zwei verschiedene Aktionen durften nicht denselben Namen tragen: das
+        // Zurueckrollen in der Zeile und das Leeren der Eingabefelder. In beiden
+        // Sprachen muss die Unterscheidung stehen.
+        var original = Localizer.Instance.Language;
+        try
+        {
+            Assert.Equal("Zurückrollen", Localizer.Instance["Update.Restore"]);
+            Assert.Equal("Zurücksetzen", Localizer.Instance["Options.Reset"]);
+
+            Localizer.Instance.Language = "en";
+            Assert.Equal("Roll back", Localizer.Instance["Update.Restore"]);
+            Assert.Equal("Reset", Localizer.Instance["Options.Reset"]);
+        }
+        finally
+        {
+            Localizer.Instance.Language = original;
+        }
+    }
+
+    [Fact]
     public async Task Zeilenumschaltung_halt_Selection_und_Zusammenfassung_konsistent()
     {
         // Der Zeilenklick in der View schaltet genau IsSelected um; der Rest - Zähler,
@@ -325,7 +347,7 @@ public class UpdateVmTests
     }
 
     [Fact]
-    public async Task Nach_einem_Fehlschlag_ist_Zuruecksetzen_moeglich()
+    public async Task Nach_einem_Fehlschlag_ist_Zurueckrollen_moeglich()
     {
         var runner = new FakeRunner()
             .Returns(Fixture("upgrade-de.txt"))
@@ -340,7 +362,7 @@ public class UpdateVmTests
     }
 
     [Fact]
-    public async Task Zuruecksetzen_baut_die_Befehlszeile_mit_der_Vorversion()
+    public async Task Zurueckrollen_baut_die_Befehlszeile_mit_der_Vorversion()
     {
         var runner = new FakeRunner()
             .Returns(Fixture("upgrade-de.txt"))
@@ -449,7 +471,7 @@ public class UpdateVmTests
     }
 
     [Fact]
-    public async Task Ein_gelungenes_Zuruecksetzen_wird_als_solches_gemeldet()
+    public async Task Ein_gelungenes_Zurueckrollen_wird_als_solches_gemeldet()
     {
         var runner = new FakeRunner()
             .Returns(Fixture("upgrade-de.txt"))
@@ -466,7 +488,7 @@ public class UpdateVmTests
     }
 
     [Fact]
-    public async Task Ein_fehlgeschlagenes_Zuruecksetzen_benannt_den_Exitcode()
+    public async Task Ein_fehlgeschlagenes_Zurueckrollen_benannt_den_Exitcode()
     {
         var runner = new FakeRunner()
             .Returns(Fixture("upgrade-de.txt"))
@@ -483,7 +505,7 @@ public class UpdateVmTests
     }
 
     [Fact]
-    public async Task Waehrend_eines_Zuruecksetzens_ist_nichts_weiter_moeglich()
+    public async Task Waehrend_eines_Zurueckrollens_ist_nichts_weiter_moeglich()
     {
         var runner = new GateRunner()
             .Returns(Fixture("upgrade-de.txt"))
@@ -521,7 +543,7 @@ public class UpdateItemTests
     };
 
     [Fact]
-    public void Zuruecksetzen_ist_nach_einem_Fehlschlag_moeglich()
+    public void Zurueckrollen_ist_nach_einem_Fehlschlag_moeglich()
     {
         var item = Item();
         item.State = ItemState.Failed;
@@ -529,7 +551,7 @@ public class UpdateItemTests
     }
 
     [Fact]
-    public void Ohne_bekannte_Vorversion_geht_kein_Zuruecksetzen()
+    public void Ohne_bekannte_Vorversion_geht_kein_Zurueckrollen()
     {
         // winget zeigt bei unbekannten Versionen ein Gedankenstrich-Symbol an.
         var item = Item(currentVersion: "—");
@@ -538,7 +560,7 @@ public class UpdateItemTests
     }
 
     [Fact]
-    public void Nur_ein_Fehlschlag_erlaubt_das_Zuruecksetzen()
+    public void Nur_ein_Fehlschlag_erlaubt_das_Zurueckrollen()
     {
         var item = Item();
         Assert.False(item.CanRestore);

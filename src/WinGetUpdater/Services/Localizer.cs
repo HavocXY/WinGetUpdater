@@ -149,12 +149,15 @@ public sealed class Localizer : INotifyPropertyChanged
                                  "{0} program(s) could not be updated: {1}"),
         ["Update.SeeLog"] = ("Einzelheiten stehen im Verlauf und im Fehlerprotokoll.",
                              "Details are in the log below and in the error log."),
-        ["Update.Restore"] = ("Zurücksetzen", "Revert"),
+        // Der Rollback in der Zeile ist vom Leeren der Eingabefelder (Options.Reset)
+        // getrennt: hier "Zurueckrollen", dort "Zuruecksetzen". Der Hinweis bleibt,
+        // weil er die Wirkung erlaeutert und nicht die Aktion benennt.
+        ["Update.Restore"] = ("Zurückrollen", "Roll back"),
         ["Update.RestoreHint"] = ("Installiert die zuletzt installierte Version ({0}) erneut.",
                                   "Reinstalls the last installed version ({0})."),
-        ["Update.Restoring"] = ("wird zurückgesetzt …", "rolling back …"),
-        ["Update.RestoredNote"] = ("zurückgesetzt auf {0}", "rolled back to {0}"),
-        ["Update.RestoreFailed"] = ("Zurücksetzen fehlgeschlagen (Code {0})",
+        ["Update.Restoring"] = ("wird zurückgerollt …", "rolling back …"),
+        ["Update.RestoredNote"] = ("zurückgerollt auf {0}", "rolled back to {0}"),
+        ["Update.RestoreFailed"] = ("Zurückrollen fehlgeschlagen (Code {0})",
                                     "rollback failed (code {0})"),
 
         // ---------------------------------------------------------- Fehlerprotokoll
