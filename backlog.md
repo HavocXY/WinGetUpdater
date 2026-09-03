@@ -55,7 +55,7 @@ werden. Bestehende Sprachumschaltungs-Tests bleiben grün.
 
 ### 2. `RegisterLocalized`: manuelle Eigenschaftenlisten durch generische Benachrichtigung ersetzen
 
-**Status:** Offen
+**Status:** In Arbeit
 
 **Warum:** `RegisterLocalized(params string[] names)` verlangt weiterhin, dass jede
 lokalisierte Eigenschaft von Hand pro Konstruktor aufgezählt wird (`CommandVm.cs:84-87`,
