@@ -29,7 +29,15 @@
 
   <SolidColorBrush x:Key="Fg.Primary"   Color="#141413" />
   <SolidColorBrush x:Key="Fg.Secondary" Color="#57564F" />
-  <SolidColorBrush x:Key="Fg.Muted"     Color="#71706A" />
+
+  <!--
+    Bewusst etwas dunkler als der erste Anlauf (#71706A): auf der Sidebar (Fg.Muted
+    auf Bg.Sidebar #F2F0E9) misst der helle Wert nur 4,36:1 - unter der 4,5:1-Schwelle.
+    #66655F bringt exakt dieses Paar auf 5,13:1 und alle uebrigen Fg.Muted-Paare -
+    die dunkelste moegliche Flaeche ist Bg.Selected #DCEBE7 - auf 4,76:1, also alles
+    >= 4,5:1. Der warme Grauton bleibt erhalten; Dark.xaml ist unangetastet.
+    -->
+  <SolidColorBrush x:Key="Fg.Muted"     Color="#66655F" />
   <SolidColorBrush x:Key="Fg.OnAccent"  Color="#FAF9F5" />
   <SolidColorBrush x:Key="Fg.Console"   Color="#24231F" />
 
