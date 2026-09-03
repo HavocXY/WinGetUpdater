@@ -31,6 +31,43 @@ internal sealed class FakeRunner : IWingetRunner
     }
 }
 
+/// <summary>
+/// winget-Ersatz, der einen Aufruf gezielt stehen lässt -
+/// fuer die Pruefung, dass waehrenddessen nichts anderes laeuft.
+/// </summary>
+internal sealed class GateRunner : IWingetRunner
+{
+    private readonly Queue<Func<Task<RunResult>>> _responses = new();
+
+    public List<IReadOnlyList<string>> Calls { get; } = new();
+    public Action? Release { get; private set; }
+
+    public GateRunner Returns(string output, int exitCode = 0)
+    {
+        _responses.Enqueue(() => Task.FromResult(new RunResult(exitCode, TimeSpan.Zero, false, output)));
+        return this;
+    }
+
+    public GateRunner Stall()
+    {
+        var gate = new TaskCompletionSource<bool>(TaskCreationOptions.RunContinuationsAsynchronously);
+        _responses.Enqueue(() => gate.Task.ContinueWith(
+            _ => new RunResult(0, TimeSpan.Zero, false, "ok"), TaskScheduler.Default));
+        Release = () => gate.TrySetResult(true);
+        return this;
+    }
+
+    public Task<RunResult> RunAsync(IReadOnlyList<string> args, bool elevated,
+                                    Action<string, LineKind> onLine, CancellationToken cancellationToken)
+    {
+        Calls.Add(args);
+        var next = _responses.Count > 0
+            ? _responses.Dequeue()
+            : () => Task.FromResult(new RunResult(0, TimeSpan.Zero, false, ""));
+        return next();
+    }
+}
+
 public class UpdateVmTests
 {
     private static string Fixture(string name)
@@ -209,6 +246,101 @@ public class UpdateVmTests
 
         vm.IncludeUnknown = true;
         Assert.Contains("inkl. unbekannter Versionen", vm.OptionSummary);
+    }
+
+    [Fact]
+    public async Task Nach_einem_Fehlschlag_ist_Zuruecksetzen_moeglich()
+    {
+        var runner = new FakeRunner()
+            .Returns(Fixture("upgrade-de.txt"))
+            .Returns("Installation fehlgeschlagen", exitCode: 5);
+        var (vm, _) = Build(runner);
+
+        await vm.RefreshAsync();
+        await vm.RunAsync();
+
+        Assert.True(vm.Items[0].CanRestore);
+        Assert.True(vm.RestoreCommand.CanExecute(vm.Items[0]));
+    }
+
+    [Fact]
+    public async Task Zuruecksetzen_baut_die_Befehlszeile_mit_der_Vorversion()
+    {
+        var runner = new FakeRunner()
+            .Returns(Fixture("upgrade-de.txt"))
+            .Returns("Installation fehlgeschlagen", exitCode: 5)
+            .Returns("Erfolgreich installiert");
+        var (vm, _) = Build(runner);
+
+        await vm.RefreshAsync();
+        await vm.RunAsync();
+        await vm.RestoreAsync(vm.Items[0]);
+
+        var line = CommandLineBuilder.ToDisplayLine(runner.Calls[^1]);
+        Assert.Equal(
+            "winget install --id StirlingTools.StirlingPDF --exact --version 2.14.0 " +
+            "--silent --accept-package-agreements --accept-source-agreements --disable-interactivity",
+            line);
+    }
+
+    [Fact]
+    public async Task Ein_gelungenes_Zuruecksetzen_wird_als_solches_gemeldet()
+    {
+        var runner = new FakeRunner()
+            .Returns(Fixture("upgrade-de.txt"))
+            .Returns("Installation fehlgeschlagen", exitCode: 5)
+            .Returns("Erfolgreich installiert");
+        var (vm, _) = Build(runner);
+
+        await vm.RefreshAsync();
+        await vm.RunAsync();
+        await vm.RestoreAsync(vm.Items[0]);
+
+        Assert.Equal(ItemState.Restored, vm.Items[0].State);
+        Assert.Contains("2.14.0", vm.Items[0].Note);
+    }
+
+    [Fact]
+    public async Task Ein_fehlgeschlagenes_Zuruecksetzen_benannt_den_Exitcode()
+    {
+        var runner = new FakeRunner()
+            .Returns(Fixture("upgrade-de.txt"))
+            .Returns("Installation fehlgeschlagen", exitCode: 5)
+            .Returns("Version nicht in der Quelle", exitCode: 4);
+        var (vm, _) = Build(runner);
+
+        await vm.RefreshAsync();
+        await vm.RunAsync();
+        await vm.RestoreAsync(vm.Items[0]);
+
+        Assert.Equal(ItemState.Failed, vm.Items[0].State);
+        Assert.Contains("4", vm.Items[0].Note);
+    }
+
+    [Fact]
+    public async Task Waehrend_eines_Zuruecksetzens_ist_nichts_weiter_moeglich()
+    {
+        var runner = new GateRunner()
+            .Returns(Fixture("upgrade-de.txt"))
+            .Returns("Installation fehlgeschlagen", exitCode: 5)
+            .Stall();
+        var store = TestSchema.Load();
+        var vm = new UpdateVm(store, new CommandLineBuilder(store), runner);
+
+        await vm.RefreshAsync();
+        await vm.RunAsync();
+
+        var restore = vm.RestoreAsync(vm.Items[0]);
+        Assert.True(vm.IsBusy);
+        Assert.False(vm.RestoreCommand.CanExecute(vm.Items[0]));
+        Assert.False(vm.RefreshCommand.CanExecute(null));
+
+        runner.Release!();
+        await restore;
+
+        Assert.False(vm.IsBusy);
+        Assert.True(vm.RefreshCommand.CanExecute(null));
+        Assert.Equal(ItemState.Restored, vm.Items[0].State);
     }
 }
 

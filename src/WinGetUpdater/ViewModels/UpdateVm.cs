@@ -84,6 +84,7 @@ public sealed class UpdateVm : ObservableObject
     private readonly CommandLineBuilder _builder;
     private readonly IWingetRunner _runner;
     private readonly CommandSpec _upgrade;
+    private readonly CommandSpec _install;
 
     private CancellationTokenSource? _cancellation;
     private UpdateStage _stage = UpdateStage.Start;
@@ -106,10 +107,15 @@ public sealed class UpdateVm : ObservableObject
         _runner = runner;
         _upgrade = store.Find("upgrade")
                    ?? throw new InvalidOperationException("Der Befehl 'upgrade' fehlt im Schema.");
+        _install = store.Find("install")
+                   ?? throw new InvalidOperationException("Der Befehl 'install' fehlt im Schema.");
 
         RefreshCommand = new AsyncRelayCommand(RefreshAsync, () => !IsBusy);
         RunCommand = new AsyncRelayCommand(RunAsync, () => !IsBusy && SelectedCount > 0);
         CancelCommand = new RelayCommand(Cancel, () => IsBusy);
+        RestoreCommand = new RelayCommand(
+            p => _ = RestoreAsync(p as UpdateItem),
+            p => p is UpdateItem i && i.CanRestore && !IsBusy);
         SelectAllCommand = new RelayCommand(() => SetAll(true));
         SelectNoneCommand = new RelayCommand(() => SetAll(false));
         ToggleOptionsCommand = new RelayCommand(() => ShowOptions = !ShowOptions);
@@ -123,6 +129,7 @@ public sealed class UpdateVm : ObservableObject
     public AsyncRelayCommand RefreshCommand { get; }
     public AsyncRelayCommand RunCommand { get; }
     public RelayCommand CancelCommand { get; }
+    public RelayCommand RestoreCommand { get; }
     public RelayCommand SelectAllCommand { get; }
     public RelayCommand SelectNoneCommand { get; }
     public RelayCommand ToggleOptionsCommand { get; }
@@ -149,7 +156,9 @@ public sealed class UpdateVm : ObservableObject
         }
     }
 
-    public bool IsBusy => _stage is UpdateStage.Checking or UpdateStage.Updating;
+    public bool IsBusy =>
+        _stage is UpdateStage.Checking or UpdateStage.Updating
+        || Items.Any(i => i.State == ItemState.RollingBack);
     public bool IsChecking => _stage == UpdateStage.Checking;
     public bool IsUpdating => _stage == UpdateStage.Updating;
     public bool ShowList => Items.Count > 0;
@@ -451,6 +460,77 @@ public sealed class UpdateVm : ObservableObject
     {
         _cancellation?.Cancel();
         ErrorLog.Instance.Info(nameof(UpdateVm), "Der Benutzer hat den laufenden Vorgang abgebrochen.");
+    }
+
+    /// <summary>
+    /// Installiert fuer ein einzelnes fehlgeschlagenes Programm die zuvor installierte
+    /// Version neu. Die Version kommt aus der Update-Liste und ist damit genau die,
+    /// die vor dem fehlgeschlagenen Update installiert war.
+    /// </summary>
+    public async Task RestoreAsync(UpdateItem? item)
+    {
+        if (item is null || !item.CanRestore || IsBusy) return;
+
+        item.State = ItemState.RollingBack;
+        item.Note = Localizer.Instance["Update.Restoring"];
+        Append($"── {item.Name}: Version {item.CurrentVersion} wird wiederhergestellt ──", LineKind.Info);
+        RaiseBusyState();
+
+        _cancellation = new CancellationTokenSource();
+        try
+        {
+            var result = await _runner.RunAsync(
+                BuildRestoreArgs(item), _elevated, Append, _cancellation.Token);
+
+            if (result.Canceled)
+            {
+                item.State = ItemState.Failed;
+                item.Note = Localizer.Instance["Update.ItemCanceled"];
+            }
+            else if (result.Succeeded)
+            {
+                item.State = ItemState.Restored;
+                item.Note = Localizer.Instance.Format("Update.RestoredNote", item.CurrentVersion);
+            }
+            else
+            {
+                item.State = ItemState.Failed;
+                item.Note = Localizer.Instance.Format("Update.RestoreFailed", result.ExitCode);
+            }
+        }
+        finally
+        {
+            _cancellation?.Dispose();
+            _cancellation = null;
+            RaiseBusyState();
+        }
+    }
+
+    /// <summary>Argumente fuer die Neuinstallation der Vorversion - gleiche Optionen wie der Update-Lauf.</summary>
+    private List<string> BuildRestoreArgs(UpdateItem item) =>
+        _builder.Build(_install, new Dictionary<string, object?>
+        {
+            ["id"] = item.Id,
+            ["exact"] = true,
+            ["version"] = item.CurrentVersion,
+            ["silent"] = _silent ? true : null,
+            ["interactive"] = _silent ? null : true,
+            ["acceptPackageAgreements"] = _acceptAgreements ? true : null,
+            ["acceptSourceAgreements"] = _acceptAgreements ? true : null,
+            ["disableInteractivity"] = true
+        });
+
+    /// <summary>
+    /// Busy bedeutet auch „ein Zurücksetzen läuft“. Deshalb melden alle Befehle hier
+    /// ihre Erreichbarkeit, wenn sich dieser Teil umdreht.
+    /// </summary>
+    private void RaiseBusyState()
+    {
+        OnPropertyChanged(nameof(IsBusy));
+        RefreshCommand.RaiseCanExecuteChanged();
+        RunCommand.RaiseCanExecuteChanged();
+        CancelCommand.RaiseCanExecuteChanged();
+        RestoreCommand.RaiseCanExecuteChanged();
     }
 
     /// <summary>Argumente fuer die Aktualisierung eines einzelnen Programms.</summary>
