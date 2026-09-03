@@ -51,7 +51,7 @@ Jede neu hinzukommende lokalisierte Eigenschaft bricht stillschweigend.
 
 ### 2. Ganze Zeilen in der Update-Liste anklickbar machen
 
-**Status:** Offen
+**Status:** In Arbeit
 
 **Warum:** Heute wählt man nur über die 16×16-Checkbox an. Kleiner Klickbereich, fühlt sich
 träge an – genau das Gegenteil von „einfach zu bedienen".
