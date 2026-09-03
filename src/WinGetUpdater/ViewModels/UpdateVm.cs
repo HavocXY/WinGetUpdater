@@ -15,13 +15,6 @@ public sealed class UpdateItem : ObservableObject
     private ItemState _state = ItemState.Waiting;
     private string _note = "";
 
-    public UpdateItem()
-    {
-        // RestoreHint ist lokalisiert - meldet sich wie alle anderen an, sonst bleibt
-        // er nach einem Sprachwechsel im alten Stand stehen.
-        RegisterLocalized(nameof(RestoreHint));
-    }
-
     public required string Name { get; init; }
     public required string Id { get; init; }
     public required string CurrentVersion { get; init; }
@@ -75,6 +68,14 @@ public sealed class UpdateItem : ObservableObject
     public string VersionChange => $"{CurrentVersion}  →  {NewVersion}";
 
     internal Action? SelectionChanged;
+
+    /// <summary>
+    /// Von <see cref="UpdateVm"/> bei Sprachwechsel aufgerufen, solange die Zeile noch in der
+    /// aktuellen Liste steht. Die Zeile selbst abonniert absichtlich nichts dauerhaft am
+    /// statischen <see cref="Localizer"/> - sonst hielte jede verworfene Zeile für immer ein
+    /// Objekt am Leben (das Speicherleck, das dieser Weg ersetzt).
+    /// </summary>
+    internal void NotifyLanguageChanged() => OnPropertyChanged(nameof(RestoreHint));
 }
 
 /// <summary>
@@ -134,6 +135,15 @@ public sealed class UpdateVm : ObservableObject
             nameof(Headline), nameof(SubLine), nameof(SelectionText),
             nameof(RunButtonText), nameof(OptionSummary), nameof(PreviewLine),
             nameof(OutputButtonText), nameof(RefreshButtonText));
+
+        // UpdateVm lebt fuer die gesamte Laufzeit der App, die einzelnen UpdateItem-Zeilen
+        // dagegen nur bis zur naechsten Pruefung. Deshalb abonniert nicht jede Zeile selbst
+        // am statischen Localizer (das waere ein Speicherleck), sondern UpdateVm schiebt die
+        // Aktualisierung aktiv an die *aktuellen* Items durch.
+        Localizer.Instance.LanguageChanged += (_, _) =>
+        {
+            foreach (var item in Items) item.NotifyLanguageChanged();
+        };
     }
 
     public Localizer Loc => Localizer.Instance;

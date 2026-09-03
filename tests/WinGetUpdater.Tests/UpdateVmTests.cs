@@ -1,4 +1,5 @@
 using System.IO;
+using System.Runtime.CompilerServices;
 using WinGetUpdater.Services;
 using WinGetUpdater.ViewModels;
 using Xunit;
@@ -443,16 +444,13 @@ public class UpdateVmTests
     }
 
     [Fact]
-    public void Sprachwechsel_meldet_auch_RestoreHint_der_Zeile_neu()
+    public async Task Sprachwechsel_meldet_auch_RestoreHint_der_aktuellen_Zeile_neu()
     {
-        var item = new UpdateItem
-        {
-            Name = "Stirling PDF",
-            Id = "StirlingTools.StirlingPDF",
-            CurrentVersion = "2.14.0",
-            NewVersion = "2.14.3",
-            Source = "winget"
-        };
+        // UpdateItem meldet sich seit dem Speicherleck-Fix nicht mehr selbst am Localizer an -
+        // UpdateVm schiebt die Aktualisierung aktiv an jede *aktuell* gelistete Zeile durch.
+        var (vm, _) = Build(new FakeRunner().Returns(Fixture("upgrade-de.txt")));
+        await vm.RefreshAsync();
+        var item = vm.Items[0];
 
         var original = Localizer.Instance.Language;
         try
@@ -468,6 +466,31 @@ public class UpdateVmTests
         {
             Localizer.Instance.Language = original;
         }
+    }
+
+    [MethodImpl(MethodImplOptions.NoInlining)]
+    private static WeakReference CaptureFirstItem(UpdateVm vm) => new(vm.Items[0]);
+
+    [Fact]
+    public async Task Verworfene_Zeilen_werden_nach_einer_erneuten_Pruefung_wieder_frei()
+    {
+        // Vor dem Fix meldete sich jede UpdateItem-Zeile dauerhaft am statischen
+        // Localizer.Instance.LanguageChanged an und blieb dadurch fuer immer im Speicher,
+        // auch nachdem ClearItems() sie aus der Liste entfernt hatte.
+        var (vm, _) = Build(new FakeRunner()
+            .Returns(Fixture("upgrade-de.txt"))
+            .Returns(Fixture("upgrade-de.txt")));
+
+        await vm.RefreshAsync();
+        var weak = CaptureFirstItem(vm);
+
+        await vm.RefreshAsync();   // ClearItems() darin verwirft die vorige Zeile
+
+        GC.Collect();
+        GC.WaitForPendingFinalizers();
+        GC.Collect();
+
+        Assert.False(weak.IsAlive);
     }
 
     [Fact]
