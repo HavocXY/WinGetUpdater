@@ -78,13 +78,10 @@ public sealed class CommandVm : ObservableObject
         ResetCommand = new RelayCommand(Reset);
         OpenDocsCommand = new RelayCommand(OpenDocs);
 
-        // Alle lokalisierten Eigenschaften melden sich hier an; die einzelnen OptionVm
-        // machen das in ihrem eigenen Konstruktor. So bleibt die Sprachumschaltung
-        // lückenlos, wenn neue Eigenschaften dazukommen.
-        RegisterLocalized(
-            nameof(Title), nameof(Description), nameof(AdvancedHeader),
-            nameof(GlobalHeader), nameof(ElevationNote), nameof(RowCountText),
-            nameof(OptionsToggleText), nameof(TableHint));
+        // Jede mit [Localized] markierte Eigenschaft dieser Klasse meldet sich hier an; die
+        // einzelnen OptionVm machen das in ihrem eigenen Konstruktor. So bleibt die
+        // Sprachumschaltung lückenlos, wenn neue Eigenschaften dazukommen - markieren genügt.
+        RegisterLocalized();
 
         UpdatePreview();
     }
@@ -92,8 +89,8 @@ public sealed class CommandVm : ObservableObject
     public CommandSpec Spec { get; }
     public Localizer Loc => Localizer.Instance;
 
-    public string Title => Spec.Title.Get(Localizer.Instance.Language);
-    public string Description => Spec.Desc.Get(Localizer.Instance.Language);
+    [Localized] public string Title => Spec.Title.Get(Localizer.Instance.Language);
+    [Localized] public string Description => Spec.Desc.Get(Localizer.Instance.Language);
     public string CommandPath => Spec.CommandLine;
     public bool IsDangerous => Spec.Danger;
 
@@ -114,8 +111,10 @@ public sealed class CommandVm : ObservableObject
     public bool HasAnyOption => PrimaryOptions.Count > 0 || AdvancedOptions.Count > 0;
     public bool CanShowTable => Spec.ParsedOutput == OutputKind.Table;
     public bool IsPackageList => Spec.Id is "search" or "list" or "upgrade";
+    [Localized]
     public string AdvancedHeader =>
         $"{Localizer.Instance["Options.Advanced"]} · {Localizer.Instance.Format("Options.Count", AdvancedOptions.Count)}";
+    [Localized]
     public string GlobalHeader =>
         $"{Localizer.Instance["Options.Global"]} · {Localizer.Instance.Format("Options.Count", GlobalOptions.Count)}";
 
@@ -154,6 +153,7 @@ public sealed class CommandVm : ObservableObject
         }
     }
 
+    [Localized]
     public string OptionsToggleText =>
         Localizer.Instance[_optionsVisible ? "Options.Hide" : "Options.Show"];
 
@@ -171,6 +171,7 @@ public sealed class CommandVm : ObservableObject
 
     public bool CanElevate => !ElevationService.IsProcessElevated;
 
+    [Localized]
     public string ElevationNote
     {
         get
@@ -248,12 +249,14 @@ public sealed class CommandVm : ObservableObject
         }
     }
 
+    [Localized]
     public string RowCountText => Localizer.Instance.Format("Result.Rows", RowCount);
 
     /// <summary>
     /// Erklaert eine leere Liste, statt eine leere Flaeche stehen zu lassen: noch nichts
     /// ausgefuehrt, vom Filter weggenommen, oder eine Ausgabe, die keine Tabelle war.
     /// </summary>
+    [Localized]
     public string TableHint
     {
         get

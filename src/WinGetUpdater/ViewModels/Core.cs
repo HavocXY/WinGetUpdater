@@ -1,9 +1,20 @@
+using System.Collections.Concurrent;
 using System.ComponentModel;
 using System.Runtime.CompilerServices;
 using System.Windows.Input;
 using WinGetUpdater.Services;
 
 namespace WinGetUpdater.ViewModels;
+
+/// <summary>
+/// Markiert eine Eigenschaft als sprachabhängig. <see cref="ObservableObject.RegisterLocalized"/>
+/// findet alle so markierten Eigenschaften einer Klasse per Reflection und meldet sie bei
+/// jedem Sprachwechsel automatisch neu. Das Attribut sitzt direkt an der Eigenschaft, die es
+/// betrifft - anders als eine Namensliste an einer entfernten Aufrufstelle lässt es sich beim
+/// Anlegen einer neuen lokalisierten Eigenschaft kaum übersehen.
+/// </summary>
+[AttributeUsage(AttributeTargets.Property)]
+public sealed class LocalizedAttribute : Attribute { }
 
 public abstract class ObservableObject : INotifyPropertyChanged
 {
@@ -20,28 +31,34 @@ public abstract class ObservableObject : INotifyPropertyChanged
         return true;
     }
 
-    private readonly HashSet<string> _localizedPropertyNames = new();
+    // Pro Typ einmal per Reflection ermittelt und wiederverwendet - eine Handvoll ViewModel-
+    // Typen über die gesamte Laufzeit, kein Aufwand, der bei jeder Instanz erneut anfiele.
+    private static readonly ConcurrentDictionary<Type, string[]> LocalizedPropertiesByType = new();
     private bool _subscribedToLanguage;
 
     /// <summary>
-    /// Macht die genannten Eigenschaften sprachwechsel-fähig: sie melden sich selbst neu,
-    /// sobald die Oberflächensprache wechselt. Eine lokalisierte Eigenschaft muss damit nur
-    /// einmal hier genannt werden - wer sie vergisst, verfestigt still die alte Sprache
-    /// statt die neue anzuzeigen. Mehrere Aufrufe werden zusammengefasst; abonniert wird
-    /// nur einmal.
+    /// Meldet diese Instanz für die Sprachumschaltung an: jede mit <see cref="LocalizedAttribute"/>
+    /// markierte Eigenschaft dieses Typs feuert bei jedem Sprachwechsel automatisch ihr eigenes
+    /// PropertyChanged. Keine Namensliste hier im Konstruktor - wer eine neue lokalisierte
+    /// Eigenschaft hinzufügt, markiert nur sie selbst. Mehrere Aufrufe abonnieren nur einmal.
     /// </summary>
-    protected void RegisterLocalized(params string[] names)
+    protected void RegisterLocalized()
     {
-        foreach (var name in names) _localizedPropertyNames.Add(name);
-        if (!_subscribedToLanguage)
+        if (_subscribedToLanguage) return;
+        _subscribedToLanguage = true;
+
+        var names = LocalizedPropertiesByType.GetOrAdd(GetType(), FindLocalizedProperties);
+        Localizer.Instance.LanguageChanged += (_, _) =>
         {
-            _subscribedToLanguage = true;
-            Localizer.Instance.LanguageChanged += (_, _) =>
-            {
-                foreach (var name in _localizedPropertyNames) OnPropertyChanged(name);
-            };
-        }
+            foreach (var name in names) OnPropertyChanged(name);
+        };
     }
+
+    private static string[] FindLocalizedProperties(Type type) =>
+        type.GetProperties()
+            .Where(p => Attribute.IsDefined(p, typeof(LocalizedAttribute)))
+            .Select(p => p.Name)
+            .ToArray();
 }
 
 public sealed class RelayCommand : ICommand

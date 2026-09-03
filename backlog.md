@@ -26,7 +26,7 @@ folgenden fünf Punkte ergeben; sie bilden das neue Paket. Abgearbeitet wird str
 
 ### 1. Speicherleck durch `RegisterLocalized` beheben · Bug
 
-**Status:** Offen
+**Status:** Erledigt (Commit `55a5962`)
 
 **Warum:** `ObservableObject.RegisterLocalized` (`Core.cs:33-44`) abonniert eine Closure
 dauerhaft am statischen, prozesslebenslangen Event `Localizer.Instance.LanguageChanged` –
@@ -55,7 +55,7 @@ werden. Bestehende Sprachumschaltungs-Tests bleiben grün.
 
 ### 2. `RegisterLocalized`: manuelle Eigenschaftenlisten durch generische Benachrichtigung ersetzen
 
-**Status:** Offen
+**Status:** In Arbeit
 
 **Warum:** `RegisterLocalized(params string[] names)` verlangt weiterhin, dass jede
 lokalisierte Eigenschaft von Hand pro Konstruktor aufgezählt wird (`CommandVm.cs:84-87`,
@@ -81,7 +81,7 @@ nebenbei die beiden Testlücken aus Punkt 3, weil es dann nichts mehr zu vergess
 
 ### 3. Regressionstests für die Sprachumschaltung vervollständigen
 
-**Status:** Offen
+**Status:** Erledigt (Commit `a6e13c9`)
 
 **Warum:** Die beiden Regressionstests aus dem ursprünglichen Sprachumschaltungs-Fix
 (Commit `6edcf93`) prüfen nicht alle Eigenschaften, die ihre eigene
@@ -107,7 +107,9 @@ sein kann) – bis dahin eigenständig nachziehen.
 
 ### 4. Zeilen-Selektion in der Update-Liste: robusteres Muster erwägen
 
-**Status:** Offen
+**Status:** Erledigt (Commit `3e9ef3e`) – Tab-Reihenfolge/Fokusring noch manuell im echten
+Fenster gegenzuprüfen, das ließ sich für die nicht installierte Dev-Build-EXE nicht
+automatisieren.
 
 **Warum:** `OnRowToggled` (`UpdatePage.xaml.cs:69-74`) funktioniert nur, weil `CheckBox` und
 der „Zurückrollen"-Button zufällig `ButtonBase` sind und `MouseLeftButtonDown` als behandelt
@@ -127,7 +129,7 @@ sichtbar); bestehende Klick-Tests bleiben grün.
 
 ### 5. `RefreshButtonText`: Bedingung nicht doppelt führen
 
-**Status:** Offen
+**Status:** Erledigt (Commit `7139b1c`)
 
 **Warum:** `RefreshButtonText` (`UpdateVm.cs:188-189`) prüft `_stage == UpdateStage.Start`
 per eigener Ternary, obwohl `ShowWelcome` (`UpdateVm.cs:181`) drei Zeilen darüber exakt

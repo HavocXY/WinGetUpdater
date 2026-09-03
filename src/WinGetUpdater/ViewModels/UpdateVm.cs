@@ -15,13 +15,6 @@ public sealed class UpdateItem : ObservableObject
     private ItemState _state = ItemState.Waiting;
     private string _note = "";
 
-    public UpdateItem()
-    {
-        // RestoreHint ist lokalisiert - meldet sich wie alle anderen an, sonst bleibt
-        // er nach einem Sprachwechsel im alten Stand stehen.
-        RegisterLocalized(nameof(RestoreHint));
-    }
-
     public required string Name { get; init; }
     public required string Id { get; init; }
     public required string CurrentVersion { get; init; }
@@ -75,6 +68,14 @@ public sealed class UpdateItem : ObservableObject
     public string VersionChange => $"{CurrentVersion}  →  {NewVersion}";
 
     internal Action? SelectionChanged;
+
+    /// <summary>
+    /// Von <see cref="UpdateVm"/> bei Sprachwechsel aufgerufen, solange die Zeile noch in der
+    /// aktuellen Liste steht. Die Zeile selbst abonniert absichtlich nichts dauerhaft am
+    /// statischen <see cref="Localizer"/> - sonst hielte jede verworfene Zeile für immer ein
+    /// Objekt am Leben (das Speicherleck, das dieser Weg ersetzt).
+    /// </summary>
+    internal void NotifyLanguageChanged() => OnPropertyChanged(nameof(RestoreHint));
 }
 
 /// <summary>
@@ -128,12 +129,19 @@ public sealed class UpdateVm : ObservableObject
         ToggleOptionsCommand = new RelayCommand(() => ShowOptions = !ShowOptions);
         ToggleOutputCommand = new RelayCommand(() => ShowOutput = !ShowOutput);
 
-        // Jede lokalisierte Eigenschaft meldet sich hier an - wer eine neue hinzufügt,
-        // ergänzt sie in diese Liste und ist damit automatisch sprachwechsel-fähig.
-        RegisterLocalized(
-            nameof(Headline), nameof(SubLine), nameof(SelectionText),
-            nameof(RunButtonText), nameof(OptionSummary), nameof(PreviewLine),
-            nameof(OutputButtonText), nameof(RefreshButtonText));
+        // Jede mit [Localized] markierte Eigenschaft dieser Klasse meldet sich hier an - wer
+        // eine neue lokalisierte Eigenschaft hinzufügt, markiert nur sie und ist damit
+        // automatisch sprachwechsel-fähig.
+        RegisterLocalized();
+
+        // UpdateVm lebt fuer die gesamte Laufzeit der App, die einzelnen UpdateItem-Zeilen
+        // dagegen nur bis zur naechsten Pruefung. Deshalb abonniert nicht jede Zeile selbst
+        // am statischen Localizer (das waere ein Speicherleck), sondern UpdateVm schiebt die
+        // Aktualisierung aktiv an die *aktuellen* Items durch.
+        Localizer.Instance.LanguageChanged += (_, _) =>
+        {
+            foreach (var item in Items) item.NotifyLanguageChanged();
+        };
     }
 
     public Localizer Loc => Localizer.Instance;
@@ -185,11 +193,13 @@ public sealed class UpdateVm : ObservableObject
     /// danach. Ein fester Text würde im Startzustand behaupten, es gäbe etwas zu
     /// wiederholen - da ist aber noch nichts geprüft.
     /// </summary>
+    [Localized]
     public string RefreshButtonText =>
-        Localizer.Instance[_stage == UpdateStage.Start ? "Update.Check" : "Update.CheckAgain"];
+        Localizer.Instance[ShowWelcome ? "Update.Check" : "Update.CheckAgain"];
 
     public int SelectedCount => Items.Count(i => i.IsSelected);
 
+    [Localized]
     public string Headline => _stage switch
     {
         UpdateStage.Start => Localizer.Instance["Update.HeadlineStart"],
@@ -202,6 +212,7 @@ public sealed class UpdateVm : ObservableObject
             : Localizer.Instance.Format("Update.HeadlineReadyMany", Items.Count)
     };
 
+    [Localized]
     public string SubLine
     {
         get
@@ -235,8 +246,10 @@ public sealed class UpdateVm : ObservableObject
     }
 
     /// <summary>"2 von 5 ausgewählt" - ersetzt die Spaltenkoepfe durch eine nuetzlichere Angabe.</summary>
+    [Localized]
     public string SelectionText => Localizer.Instance.Format("Update.SelectedOf", SelectedCount, Items.Count);
 
+    [Localized]
     public string RunButtonText => SelectedCount switch
     {
         0 => Localizer.Instance["Update.RunNone"],
@@ -265,6 +278,7 @@ public sealed class UpdateVm : ObservableObject
         set { if (Set(ref _showOutput, value)) OnPropertyChanged(nameof(OutputButtonText)); }
     }
 
+    [Localized]
     public string OutputButtonText =>
         Localizer.Instance[_showOutput ? "Update.HideOutput" : "Update.ShowOutput"];
 
@@ -309,6 +323,7 @@ public sealed class UpdateVm : ObservableObject
     public bool CanElevate => !ElevationService.IsProcessElevated;
 
     /// <summary>Die Kurzfassung der wirksamen Einstellungen, direkt neben dem Knopf.</summary>
+    [Localized]
     public string OptionSummary
     {
         get
@@ -324,6 +339,7 @@ public sealed class UpdateVm : ObservableObject
     }
 
     /// <summary>Die Befehlszeile, die pro Programm ausgefuehrt wird - am Beispiel des ersten.</summary>
+    [Localized]
     public string PreviewLine
     {
         get
