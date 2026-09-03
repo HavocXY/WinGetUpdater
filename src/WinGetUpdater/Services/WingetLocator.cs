@@ -97,6 +97,13 @@ public static class WingetLocator
             var output = process.StandardOutput.ReadToEnd().Trim();
             if (!process.WaitForExit(8000))
             {
+                // Prozess explizit beenden - Dispose allein toetet ihn nicht.
+                try { process.Kill(entireProcessTree: true); }
+                catch (Exception ex)
+                {
+                    ErrorLog.Instance.Warn(nameof(WingetLocator),
+                        "Beim Beenden des nicht antwortenden winget-Prozesses ist ein Fehler aufgetreten.", ex);
+                }
                 ErrorLog.Instance.Warn(nameof(WingetLocator),
                     $"\"{exePath} --version\" hat nach 8 Sekunden nicht geantwortet.");
                 return null;
