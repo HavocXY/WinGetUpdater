@@ -208,6 +208,15 @@ requirement made testable.
 * **`winget.exe` is not reliably on PATH.** `WingetLocator` tries the App Execution Alias, then
   PATH, then globs `Microsoft.DesktopAppInstaller_*_8wekyb3d8bbwe` under WindowsApps. If none
   works the app shows an explanatory page instead of failing.
+* **A whole-row click target relies on its embedded controls opting out, not on it checking them.**
+  The update row (`UpdatePage.xaml`) wires `MouseLeftButtonDown`/`KeyDown` on the row `Border`
+  itself to toggle `IsSelected`, while the row's `CheckBox` and "Zurückrollen" `Button` keep their
+  own behaviour untouched. This works only because `ButtonBase` marks the mouse/key event handled
+  before it bubbles up to the `Border`'s plain handler (added without `HandledEventsToo`). Any
+  future control dropped into that row template that is *not* a `ButtonBase` (a `Hyperlink`,
+  `ComboBox`, a `Slider`, …) will silently double-toggle the selection on click — give it its own
+  `e.Handled = true` if that ever comes up. The row is also `Focusable` for the same reason a
+  `CheckBox` already was: Tab must reach it without a mouse.
 
 ### Localisation split
 
@@ -237,6 +246,12 @@ from a ViewModel that lives for the app's lifetime (or is cached for it, like th
 in `ShellVm._pages`) — a short-lived object (one row of a list, rebuilt on every refresh) must not
 call it itself; have the long-lived owner push the refresh to it instead (see how `UpdateVm` handles
 `UpdateItem.RestoreHint`), or the object leaks forever off the static event.
+
+A regression test for this mechanism must hardcode the expected property names — it must not
+rediscover them via the same `[Localized]` reflection the production code uses. A test built that
+way can't catch a missing attribute: removing `[Localized]` from a property removes it from the
+test's own "expected" list at the same time, so the assertion still passes. Confirmed by actually
+trying it (`git log` for "Gegencheck" in `UpdateVmTests.cs`'s history).
 
 ### Dependencies
 
