@@ -81,7 +81,7 @@ nebenbei die beiden Testlücken aus Punkt 3, weil es dann nichts mehr zu vergess
 
 ### 3. Regressionstests für die Sprachumschaltung vervollständigen
 
-**Status:** In Arbeit
+**Status:** Erledigt (Commit `a6e13c9`)
 
 **Warum:** Die beiden Regressionstests aus dem ursprünglichen Sprachumschaltungs-Fix
 (Commit `6edcf93`) prüfen nicht alle Eigenschaften, die ihre eigene
