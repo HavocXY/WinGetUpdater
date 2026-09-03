@@ -24,7 +24,7 @@ Punkte. Abgearbeitet wird strikt von 1 nach 5.
 
 ### 1. Sprachumschaltung komplett machen · Bug
 
-**Status:** Offen
+**Status:** In Arbeit
 
 **Warum:** Nach dem Wechsel auf Englisch bleibt „Verlauf anzeigen" deutsch – alles andere ist
 übersetzt (reproduzierbar, Screenshot `main-en.png`). Ursache: Jede ViewModel führt eine
