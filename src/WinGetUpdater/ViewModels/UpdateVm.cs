@@ -195,7 +195,7 @@ public sealed class UpdateVm : ObservableObject
     /// </summary>
     [Localized]
     public string RefreshButtonText =>
-        Localizer.Instance[_stage == UpdateStage.Start ? "Update.Check" : "Update.CheckAgain"];
+        Localizer.Instance[ShowWelcome ? "Update.Check" : "Update.CheckAgain"];
 
     public int SelectedCount => Items.Count(i => i.IsSelected);
 
