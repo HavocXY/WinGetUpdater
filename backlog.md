@@ -107,7 +107,7 @@ sein kann) – bis dahin eigenständig nachziehen.
 
 ### 4. Zeilen-Selektion in der Update-Liste: robusteres Muster erwägen
 
-**Status:** Offen
+**Status:** In Arbeit
 
 **Warum:** `OnRowToggled` (`UpdatePage.xaml.cs:69-74`) funktioniert nur, weil `CheckBox` und
 der „Zurückrollen"-Button zufällig `ButtonBase` sind und `MouseLeftButtonDown` als behandelt
