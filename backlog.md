@@ -26,7 +26,7 @@ folgenden fünf Punkte ergeben; sie bilden das neue Paket. Abgearbeitet wird str
 
 ### 1. Speicherleck durch `RegisterLocalized` beheben · Bug
 
-**Status:** In Arbeit
+**Status:** Erledigt (Commit `55a5962`)
 
 **Warum:** `ObservableObject.RegisterLocalized` (`Core.cs:33-44`) abonniert eine Closure
 dauerhaft am statischen, prozesslebenslangen Event `Localizer.Instance.LanguageChanged` –
