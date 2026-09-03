@@ -89,7 +89,7 @@ CLAUDE.md behauptet, alle Paare lägen ≥ 4,5:1 – stimmt fast, aber nicht hie
 
 ### 4. Startzustand: korrekten Button-Text zeigen
 
-**Status:** In Arbeit
+**Status:** Erledigt (Commit `b4c503b`)
 
 **Warum:** Vor der ersten Prüfung steht oben rechts „Erneut prüfen", obwohl noch nichts
 geprüft wurde. Der Localizer enthält dafür bereits den ungenutzten Key
