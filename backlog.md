@@ -107,7 +107,9 @@ sein kann) – bis dahin eigenständig nachziehen.
 
 ### 4. Zeilen-Selektion in der Update-Liste: robusteres Muster erwägen
 
-**Status:** In Arbeit
+**Status:** Erledigt (Commit `3e9ef3e`) – Tab-Reihenfolge/Fokusring noch manuell im echten
+Fenster gegenzuprüfen, das ließ sich für die nicht installierte Dev-Build-EXE nicht
+automatisieren.
 
 **Warum:** `OnRowToggled` (`UpdatePage.xaml.cs:69-74`) funktioniert nur, weil `CheckBox` und
 der „Zurückrollen"-Button zufällig `ButtonBase` sind und `MouseLeftButtonDown` als behandelt
