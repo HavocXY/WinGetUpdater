@@ -129,7 +129,7 @@ sichtbar); bestehende Klick-Tests bleiben grün.
 
 ### 5. `RefreshButtonText`: Bedingung nicht doppelt führen
 
-**Status:** Offen
+**Status:** In Arbeit
 
 **Warum:** `RefreshButtonText` (`UpdateVm.cs:188-189`) prüft `_stage == UpdateStage.Start`
 per eigener Ternary, obwohl `ShowWelcome` (`UpdateVm.cs:181`) drei Zeilen darüber exakt
