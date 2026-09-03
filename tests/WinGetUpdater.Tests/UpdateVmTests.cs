@@ -103,6 +103,37 @@ public class UpdateVmTests
     }
 
     [Fact]
+    public async Task Zeilenumschaltung_halt_Selection_und_Zusammenfassung_konsistent()
+    {
+        // Der Zeilenklick in der View schaltet genau IsSelected um; der Rest - Zähler,
+        // Text, Knopf-Erreichbarkeit - muss über SelectionChanged mitlaufen und aktuell
+        // bleiben. Das ist der Vertrag, auf dem das anklickbare Zeilen-Border aufsetzt.
+        var (vm, _) = Build(new FakeRunner().Returns(Fixture("upgrade-de.txt")));
+        await vm.RefreshAsync();
+
+        var item = vm.Items[0];
+        var raised = new List<string>();
+        vm.PropertyChanged += (_, e) => { if (e.PropertyName is not null) raised.Add(e.PropertyName); };
+
+        Assert.True(item.IsSelected);
+        Assert.Equal("1 von 1 ausgewählt", vm.SelectionText);
+
+        item.IsSelected = !item.IsSelected;   // das macht der Klick in der Zeile
+
+        Assert.False(item.IsSelected);
+        Assert.Contains(nameof(UpdateVm.SelectionText), raised);
+        Assert.Contains(nameof(UpdateVm.SelectedCount), raised);
+        Assert.Contains(nameof(UpdateVm.RunButtonText), raised);
+        Assert.Equal("0 von 1 ausgewählt", vm.SelectionText);
+        Assert.False(vm.RunCommand.CanExecute(null));
+
+        item.IsSelected = !item.IsSelected;   // zurück
+        Assert.True(item.IsSelected);
+        Assert.Equal("1 von 1 ausgewählt", vm.SelectionText);
+        Assert.True(vm.RunCommand.CanExecute(null));
+    }
+
+    [Fact]
     public async Task Alles_aktuell_wenn_winget_keine_Tabelle_liefert()
     {
         var (vm, _) = Build(new FakeRunner().Returns("Es sind keine Aktualisierungen verfügbar.\r\n"));

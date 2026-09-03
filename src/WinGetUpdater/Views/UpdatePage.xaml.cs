@@ -1,6 +1,7 @@
 using System.Collections.Specialized;
 using System.Windows;
 using System.Windows.Controls;
+using System.Windows.Input;
 using System.Windows.Media.Animation;
 using WinGetUpdater.Services;
 using WinGetUpdater.ViewModels;
@@ -57,5 +58,18 @@ public partial class UpdatePage : UserControl
     {
         if (e.Action == NotifyCollectionChangedAction.Add)
             OutputScroll.ScrollToEnd();
+    }
+
+    /// <summary>
+    /// Ein Klick irgendwo in der Zeile - Name, Version, Quelle oder Leerraum - schaltet die
+    /// Auswahl um. Checkbox und Zurückrollen-Knopf sind ButtonBase und haben das Event
+    /// bereits als behandelt markiert, also erreicht hier nur, was wirklich auf die Zeile
+    /// selbst geklickt wurde. Kein Doppelumschalten, keine Nebenwirkung auf die Knöpfe.
+    /// </summary>
+    private void OnRowToggled(object sender, MouseButtonEventArgs e)
+    {
+        if (e.Handled) return;
+        if (sender is FrameworkElement fe && fe.DataContext is UpdateItem item)
+            item.IsSelected = !item.IsSelected;
     }
 }

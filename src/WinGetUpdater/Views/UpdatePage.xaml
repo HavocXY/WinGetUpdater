@@ -19,7 +19,22 @@
 
     <!-- Eine Zeile der Update-Liste. -->
     <DataTemplate x:Key="UpdateItemTemplate">
-      <Border Padding="14,11" Margin="0,0,0,1" Background="{DynamicResource Bg.Card}">
+      <!--
+        Die ganze Zeile ist anwählbar: Name, Version, Quelle und Leerraum schalten IsSelected
+        um. Die Checkbox und der Zurückrollen-Knopf sind ButtonBase, die das Maus-Event als
+        behandelt markieren, und bleiben damit unverändert (kein Doppelumschalten).
+        -->
+      <Border Padding="14,11" Margin="0,0,0,1" Cursor="Hand" MouseLeftButtonDown="OnRowToggled">
+        <Border.Style>
+          <Style TargetType="Border">
+            <Setter Property="Background" Value="{DynamicResource Bg.Card}" />
+            <Style.Triggers>
+              <Trigger Property="IsMouseOver" Value="True">
+                <Setter Property="Background" Value="{DynamicResource Bg.Hover}" />
+              </Trigger>
+            </Style.Triggers>
+          </Style>
+        </Border.Style>
         <Grid>
           <Grid.ColumnDefinitions>
             <ColumnDefinition Width="Auto" />
