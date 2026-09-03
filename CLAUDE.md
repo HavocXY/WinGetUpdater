@@ -223,6 +223,21 @@ Two separate mechanisms, deliberately:
 winget's *output* always follows the Windows display language regardless of the UI setting. That
 is winget behaviour and cannot be changed.
 
+**A computed ViewModel property that reads either source needs `[Localized]` too.** A
+`Localizer.Instance["key"]` / `.Format(...)` call inside a C# property getter (`UpdateVm.Headline`,
+`CommandVm.Title`, …) is not a XAML indexer binding, so `PropertyChanged("Item[]")` never reaches
+it. Mark the property `[Localized]` and have the owning class call the parameterless
+`RegisterLocalized()` once, in its constructor (`ViewModels/Core.cs`). The base class finds every
+`[Localized]` property on the concrete type via reflection — cached per type, so this costs nothing
+per instance — and re-raises `PropertyChanged` for each of them when `Localizer.LanguageChanged`
+fires. Forget the attribute and that one property silently freezes in the old language after a
+switch; this exact bug shipped twice (see `backlog.md` history) before the attribute replaced a
+hand-maintained per-class enumeration. `RegisterLocalized()` never unsubscribes, so only call it
+from a ViewModel that lives for the app's lifetime (or is cached for it, like the per-command pages
+in `ShellVm._pages`) — a short-lived object (one row of a list, rebuilt on every refresh) must not
+call it itself; have the long-lived owner push the refresh to it instead (see how `UpdateVm` handles
+`UpdateItem.RestoreHint`), or the object leaks forever off the static event.
+
 ### Dependencies
 
 The application has **no NuGet packages** — WPF, `System.Text.Json` and `System.Diagnostics.Process`

@@ -148,7 +148,7 @@ src\WinGetUpdater\
 ├─ ViewModels\                    ShellVm (zwei Betriebsarten), UpdateVm, CommandVm, OptionVm
 └─ Views\                         ShellWindow, UpdatePage, CommandPage, Konverter
 tools\Check-Schema.ps1            Der Vollständigkeitsnachweis
-tests\WinGetUpdater.Tests\         63 Tests, davon 5 gegen unveränderte winget-Ausgaben
+tests\WinGetUpdater.Tests\         81 Tests, davon 5 gegen unveränderte winget-Ausgaben
 ```
 
 Kein einziges NuGet-Paket in der Anwendung selbst — WPF, `System.Text.Json` und `Process`
