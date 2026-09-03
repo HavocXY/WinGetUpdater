@@ -93,7 +93,7 @@ public sealed class Localizer : INotifyPropertyChanged
         ["Update.ColumnVersion"] = ("Version", "Version"),
         ["Update.ColumnSource"] = ("Quelle", "Source"),
 
-        ["Update.Options"] = ("Optionen", "Options"),
+        ["Update.Options"] = ("Expertenmenü", "Advanced"),
         ["Update.OptSilent"] = ("Ohne Rückfragen installieren", "Install without prompts"),
         ["Update.OptSilentHelp"] = ("Das Installationsprogramm läuft unsichtbar durch. Abschalten, wenn " +
                                     "Sie die Dialoge des Herstellers sehen möchten.",
