@@ -133,7 +133,7 @@ public sealed class UpdateVm : ObservableObject
         RegisterLocalized(
             nameof(Headline), nameof(SubLine), nameof(SelectionText),
             nameof(RunButtonText), nameof(OptionSummary), nameof(PreviewLine),
-            nameof(OutputButtonText));
+            nameof(OutputButtonText), nameof(RefreshButtonText));
     }
 
     public Localizer Loc => Localizer.Instance;
@@ -160,7 +160,8 @@ public sealed class UpdateVm : ObservableObject
             foreach (var name in new[]
                      {
                          nameof(IsBusy), nameof(IsChecking), nameof(IsUpdating), nameof(ShowList),
-                         nameof(ShowUpToDate), nameof(ShowWelcome), nameof(Headline), nameof(SubLine)
+                         nameof(ShowUpToDate), nameof(ShowWelcome), nameof(Headline), nameof(SubLine),
+                         nameof(RefreshButtonText)
                      })
                 OnPropertyChanged(name);
 
@@ -178,6 +179,14 @@ public sealed class UpdateVm : ObservableObject
     public bool ShowList => Items.Count > 0;
     public bool ShowUpToDate => _stage is UpdateStage.UpToDate;
     public bool ShowWelcome => _stage == UpdateStage.Start;
+
+    /// <summary>
+    /// Der Kopf-Knopf lädt vor der ersten Prüfung zu einer Suche ein und wiederholt sie
+    /// danach. Ein fester Text würde im Startzustand behaupten, es gäbe etwas zu
+    /// wiederholen - da ist aber noch nichts geprüft.
+    /// </summary>
+    public string RefreshButtonText =>
+        Localizer.Instance[_stage == UpdateStage.Start ? "Update.Check" : "Update.CheckAgain"];
 
     public int SelectedCount => Items.Count(i => i.IsSelected);
 

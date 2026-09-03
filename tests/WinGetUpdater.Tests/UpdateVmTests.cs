@@ -103,6 +103,51 @@ public class UpdateVmTests
     }
 
     [Fact]
+    public async Task Start_zeigt_Suchtext_und_nach_der_Prufung_Erneut_pruefen()
+    {
+        // Vor der ersten Pruefung darf der Knopf nicht behaupten, etwas zu wiederholen.
+        var (vm, _) = Build(new FakeRunner().Returns(Fixture("upgrade-de.txt")));
+        var original = Localizer.Instance.Language;
+        try
+        {
+            Assert.Equal(UpdateStage.Start, vm.Stage);
+            Assert.Equal("Jetzt nach Updates suchen", vm.RefreshButtonText);
+
+            var raised = new List<string>();
+            vm.PropertyChanged += (_, e) => { if (e.PropertyName is not null) raised.Add(e.PropertyName); };
+
+            await vm.RefreshAsync();
+
+            Assert.Contains(nameof(UpdateVm.RefreshButtonText), raised);
+            Assert.Equal("Erneut prüfen", vm.RefreshButtonText);
+        }
+        finally
+        {
+            Localizer.Instance.Language = original;
+        }
+    }
+
+    [Fact]
+    public async Task Start_zeigt_Suchtext_und_nach_der_Prufung_Check_again_englisch()
+    {
+        var (vm, _) = Build(new FakeRunner().Returns(Fixture("upgrade-de.txt")));
+        var original = Localizer.Instance.Language;
+        try
+        {
+            Localizer.Instance.Language = "en";
+            Assert.Equal("Check for updates now", vm.RefreshButtonText);   // Start
+
+            await vm.RefreshAsync();
+
+            Assert.Equal("Check again", vm.RefreshButtonText);             // danach
+        }
+        finally
+        {
+            Localizer.Instance.Language = original;
+        }
+    }
+
+    [Fact]
     public async Task Zeilenumschaltung_halt_Selection_und_Zusammenfassung_konsistent()
     {
         // Der Zeilenklick in der View schaltet genau IsSelected um; der Rest - Zähler,

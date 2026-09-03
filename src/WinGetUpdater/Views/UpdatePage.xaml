@@ -136,7 +136,7 @@
                 Content="{Binding [Run.Cancel], Source={x:Static svc:Localizer.Instance}}" />
         <Button Command="{Binding RefreshCommand}"
                 Visibility="{Binding IsBusy, Converter={StaticResource VisNot}}"
-                Content="{Binding [Update.CheckAgain], Source={x:Static svc:Localizer.Instance}}" />
+                Content="{Binding RefreshButtonText}" />
       </StackPanel>
     </Grid>
 
