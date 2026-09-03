@@ -386,7 +386,10 @@ public class UpdateVmTests
     public void Sprachwechsel_meldet_auch_die_vergessenen_Eigenschaften_neu()
     {
         // Vor dem Fix: OutputButtonText und SelectionText blieben beim Wechsel auf Englisch
-        // deutsch, weil sie in der manuellen RefreshLanguage()-Liste fehlten.
+        // deutsch, weil sie in der manuellen RefreshLanguage()-Liste fehlten. Die Pruefung
+        // laeuft ueber alle [Localized]-Eigenschaften von UpdateVm - nicht nur ueber eine
+        // Teilmenge, die selbst wieder veralten koennte (RefreshButtonText fehlte hier
+        // tatsaechlich, bis diese Zeile es aufgedeckt hat).
         var (vm, _) = Build(new FakeRunner());
         var original = Localizer.Instance.Language;
         try
@@ -401,10 +404,15 @@ public class UpdateVmTests
 
             Localizer.Instance.Language = "en";
 
+            // Vollstaendige Liste aller [Localized]-Eigenschaften von UpdateVm - bewusst
+            // hier hart eingetragen statt per Reflection aus derselben Quelle wie die
+            // Produktion abgeleitet, sonst wuerde ein vergessenes Attribut nicht auffallen
+            // (die Erwartung wuerde mit der Eigenschaft gemeinsam verschwinden).
             var expected = new[]
             {
-                "Headline", "SubLine", "SelectionText", "RunButtonText",
-                "OptionSummary", "PreviewLine", "OutputButtonText"
+                nameof(UpdateVm.Headline), nameof(UpdateVm.SubLine), nameof(UpdateVm.SelectionText),
+                nameof(UpdateVm.RunButtonText), nameof(UpdateVm.OptionSummary), nameof(UpdateVm.PreviewLine),
+                nameof(UpdateVm.OutputButtonText), nameof(UpdateVm.RefreshButtonText)
             };
             foreach (var name in expected) Assert.Contains(name, raised);
             Assert.Equal("Show log", vm.OutputButtonText);           // Englisch
@@ -418,7 +426,9 @@ public class UpdateVmTests
     [Fact]
     public void Sprachwechsel_meldet_auch_die_Optionen_von_CommandVm_neu()
     {
-        // OptionVm und CommandVm durften ihre Labels sonst auch im alten Stand lassen.
+        // OptionVm und CommandVm durften ihre Labels sonst auch im alten Stand lassen. Die
+        // Pruefung deckt alle [Localized]-Eigenschaften beider Typen ab, nicht nur eine
+        // Stichprobe (vorher fehlten 6 von 8 CommandVm-Eigenschaften in dieser Liste).
         var store = TestSchema.Load();
         var command = new CommandVm(store.Find("install")!, store, new CommandLineBuilder(store), new FakeRunner());
         var option = command.PrimaryOptions.First();
@@ -426,16 +436,25 @@ public class UpdateVmTests
         var original = Localizer.Instance.Language;
         try
         {
-            var raised = new List<string>();
-            option.PropertyChanged += (_, e) => { if (e.PropertyName is not null) raised.Add(e.PropertyName); };
-            command.PropertyChanged += (_, e) => { if (e.PropertyName is not null) raised.Add(e.PropertyName); };
+            var raisedOnOption = new List<string>();
+            var raisedOnCommand = new List<string>();
+            option.PropertyChanged += (_, e) => { if (e.PropertyName is not null) raisedOnOption.Add(e.PropertyName); };
+            command.PropertyChanged += (_, e) => { if (e.PropertyName is not null) raisedOnCommand.Add(e.PropertyName); };
 
             Localizer.Instance.Language = Localizer.Instance.IsGerman ? "en" : "de";
 
-            Assert.Contains(nameof(OptionVm.Label), raised);
-            Assert.Contains(nameof(OptionVm.Description), raised);
-            Assert.Contains(nameof(CommandVm.Title), raised);
-            Assert.Contains(nameof(CommandVm.OptionsToggleText), raised);
+            // Vollstaendige, hart eingetragene Listen - siehe Begruendung im Sprachwechsel-Test
+            // fuer UpdateVm oben: per Reflection aus [Localized] abgeleitete Erwartungen wuerden
+            // ein vergessenes Attribut nicht erkennen.
+            var expectedOnOption = new[] { nameof(OptionVm.Label), nameof(OptionVm.Description) };
+            var expectedOnCommand = new[]
+            {
+                nameof(CommandVm.Title), nameof(CommandVm.Description), nameof(CommandVm.AdvancedHeader),
+                nameof(CommandVm.GlobalHeader), nameof(CommandVm.ElevationNote), nameof(CommandVm.RowCountText),
+                nameof(CommandVm.OptionsToggleText), nameof(CommandVm.TableHint)
+            };
+            foreach (var name in expectedOnOption) Assert.Contains(name, raisedOnOption);
+            foreach (var name in expectedOnCommand) Assert.Contains(name, raisedOnCommand);
         }
         finally
         {
