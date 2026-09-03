@@ -325,7 +325,9 @@ public sealed class UpdateVm : ObservableObject
 
         _lastCheck = DateTimeOffset.Now;
 
-        var table = TableParser.Parse(string.Join(Environment.NewLine, Output.Select(o => o.Text)));
+        // result.Output ist die voellig gesammelte Ausgabe des Laufs - die ObservableCollection
+        // "Output" wird asynchron ueber den Dispatcher gefuellt und kann hier noch unvollstaendig sein.
+        var table = TableParser.Parse(result.Output);
         if (table is not null && table.IdColumn >= 0)
         {
             foreach (var row in Enumerable.Range(0, table.Rows.Count))

@@ -386,6 +386,7 @@ public sealed class CommandVm : ObservableObject
 
         RunResult result = new(0, TimeSpan.Zero, false, "");
         var total = TimeSpan.Zero;
+        var allOutput = new System.Text.StringBuilder();
 
         try
         {
@@ -402,6 +403,7 @@ public sealed class CommandVm : ObservableObject
                 var args = _builder.Build(Spec, CurrentValues(), SplitExtraArguments(_extraArguments));
                 result = await _runner.RunAsync(args, Elevated, AppendLine, _cancellation.Token);
                 total += result.Duration;
+                allOutput.AppendLine(result.Output);
 
                 if (!result.Succeeded && runs.Count > 1)
                     AppendLine($"⚠ {packageId}: Exitcode {result.ExitCode}", LineKind.Error);
@@ -431,8 +433,10 @@ public sealed class CommandVm : ObservableObject
             Localizer.Instance.Format("Status.Duration", total.TotalSeconds)
         });
 
+        // Die voellig gesammelte Ausgabe aller Laeufe - die ObservableCollection "Output"
+        // wird asynchron ueber den Dispatcher gefuellt und kann hier noch unvollstaendig sein.
         if (Spec.ParsedOutput == OutputKind.Table)
-            BuildTable(string.Join(Environment.NewLine, Output.Select(o => o.Text)));
+            BuildTable(allOutput.ToString().TrimEnd());
     }
 
     private void BuildTable(string text)
