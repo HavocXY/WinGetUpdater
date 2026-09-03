@@ -6,7 +6,7 @@ namespace WinGetUpdater.ViewModels;
 
 public enum UpdateStage { Start, Checking, Ready, UpToDate, Updating, Finished }
 
-public enum ItemState { Waiting, Running, Succeeded, Failed }
+public enum ItemState { Waiting, Running, Succeeded, Failed, RollingBack, Restored }
 
 /// <summary>Ein aktualisierbares Programm in der Hauptansicht.</summary>
 public sealed class UpdateItem : ObservableObject
@@ -36,12 +36,25 @@ public sealed class UpdateItem : ObservableObject
             OnPropertyChanged(nameof(IsRunning));
             OnPropertyChanged(nameof(IsDone));
             OnPropertyChanged(nameof(IsFailed));
+            OnPropertyChanged(nameof(IsRestored));
+            OnPropertyChanged(nameof(CanRestore));
         }
     }
 
-    public bool IsRunning => _state == ItemState.Running;
+    public bool IsRunning => _state is ItemState.Running or ItemState.RollingBack;
     public bool IsDone => _state == ItemState.Succeeded;
     public bool IsFailed => _state == ItemState.Failed;
+    public bool IsRestored => _state == ItemState.Restored;
+
+    /// <summary>Ob die zuvor installierte Version bekannt ist - sonst lässt sich nichts zurücksetzen.</summary>
+    public bool HasPreviousVersion =>
+        !string.IsNullOrWhiteSpace(CurrentVersion) && CurrentVersion != "—";
+
+    /// <summary>Ob der „Zurücksetzen“-Knopf an dieser Zeile erscheinen darf.</summary>
+    public bool CanRestore => _state == ItemState.Failed && HasPreviousVersion;
+
+    /// <summary>Knopf-Hinweis mit der Version, die neu installiert würde.</summary>
+    public string RestoreHint => Localizer.Instance.Format("Update.RestoreHint", CurrentVersion);
 
     /// <summary>Kurzer Klartext neben der Zeile, etwa der Grund fuer ein Scheitern.</summary>
     public string Note

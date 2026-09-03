@@ -211,3 +211,45 @@ public class UpdateVmTests
         Assert.Contains("inkl. unbekannter Versionen", vm.OptionSummary);
     }
 }
+
+public class UpdateItemTests
+{
+    private static UpdateItem Item(string currentVersion = "2.14.0") => new()
+    {
+        Name = "Stirling PDF",
+        Id = "StirlingTools.StirlingPDF",
+        CurrentVersion = currentVersion,
+        NewVersion = "2.14.3",
+        Source = "winget"
+    };
+
+    [Fact]
+    public void Zuruecksetzen_ist_nach_einem_Fehlschlag_moeglich()
+    {
+        var item = Item();
+        item.State = ItemState.Failed;
+        Assert.True(item.CanRestore);
+    }
+
+    [Fact]
+    public void Ohne_bekannte_Vorversion_geht_kein_Zuruecksetzen()
+    {
+        // winget zeigt bei unbekannten Versionen ein Gedankenstrich-Symbol an.
+        var item = Item(currentVersion: "—");
+        item.State = ItemState.Failed;
+        Assert.False(item.CanRestore);
+    }
+
+    [Fact]
+    public void Nur_ein_Fehlschlag_erlaubt_das_Zuruecksetzen()
+    {
+        var item = Item();
+        Assert.False(item.CanRestore);
+
+        item.State = ItemState.Succeeded;
+        Assert.False(item.CanRestore);
+
+        item.State = ItemState.Restored;
+        Assert.False(item.CanRestore);
+    }
+}
