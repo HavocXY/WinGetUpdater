@@ -107,7 +107,7 @@ danach → „Erneut prüfen"/„Check again").
 
 ### 5. Begriffskollision „Zurücksetzen" auflösen
 
-**Status:** Offen
+**Status:** In Arbeit
 
 **Warum:** Zwei unterschiedliche Aktionen tragen im Deutschen denselben Namen: der
 Rollback-Button in der Update-Zeile (`Update.Restore`) und der Header-Button der
