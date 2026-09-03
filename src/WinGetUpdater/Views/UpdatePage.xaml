@@ -53,12 +53,23 @@
               <TextBlock Text="✕" FontSize="15" Margin="0,0,6,0" VerticalAlignment="Center"
                          Foreground="{DynamicResource State.Error}"
                          Visibility="{Binding IsFailed, Converter={StaticResource Vis}}" />
+              <TextBlock Text="↩" FontSize="15" Margin="0,0,6,0" VerticalAlignment="Center"
+                         Foreground="{DynamicResource State.Ok}"
+                         Visibility="{Binding IsRestored, Converter={StaticResource Vis}}" />
               <TextBlock Text="●" FontSize="13" Margin="0,0,6,0" VerticalAlignment="Center"
                          Foreground="{DynamicResource Accent}"
                          Visibility="{Binding IsRunning, Converter={StaticResource Vis}}" />
               <TextBlock Text="{Binding Note}" VerticalAlignment="Center"
                          Style="{StaticResource Text.Caption}"
                          Visibility="{Binding HasNote, Converter={StaticResource Vis}}" />
+              <Button Style="{StaticResource Btn.Ghost}" FontSize="12" Padding="8,3" Margin="10,0,0,0"
+                      VerticalAlignment="Center"
+                      Command="{Binding DataContext.RestoreCommand,
+                                  RelativeSource={RelativeSource AncestorType=UserControl}}"
+                      CommandParameter="{Binding}"
+                      Content="{Binding [Update.Restore], Source={x:Static svc:Localizer.Instance}}"
+                      ToolTip="{Binding RestoreHint}"
+                      Visibility="{Binding CanRestore, Converter={StaticResource Vis}}" />
             </StackPanel>
           </Border>
         </Grid>

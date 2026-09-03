@@ -22,7 +22,7 @@ Das ist nicht behauptet, sondern geprüft — siehe [Vollständigkeit](#vollstä
 | **Die Liste** | Programmname, Paket-ID, alte → neue Version, Quelle. Alles vorausgewählt, einzeln abwählbar. |
 | **Der Knopf** | Beschriftet mit dem, was er tut: „3 Programme aktualisieren". Nicht „OK". |
 | **Während des Laufs** | Jede Zeile bekommt ihren eigenen Zustand: läuft, aktualisiert, fehlgeschlagen. |
-| **Wenn etwas schiefgeht** | Ein roter Kasten benennt das Programm und den Exitcode. Nichts verschwindet stillschweigend. |
+| **Wenn etwas schiefgeht** | Ein roter Kasten benennt das Programm und den Exitcode. An jeder fehlgeschlagenen Zeile steht ein Knopf „Zurücksetzen", der die zuvor installierte Version neu installiert. Nichts verschwindet stillschweigend. |
 
 Neben dem Knopf steht in Klartext, was gerade gilt — „ohne Rückfragen · Lizenzen angenommen".
 Wer das ändern will, klappt **Optionen** auf. Dort steht zu jedem Schalter ein Satz, was er
@@ -229,6 +229,9 @@ statt vollständige Tiefe. Konkret ruft es 9 der 39 winget-Befehle auf und erzeu
 
 * **Der erhöhte Ausführungspfad ist nicht durch Tests abgedeckt** — er verlangt eine echte
   UAC-Bestätigung. Ein maschinenweites Update ist der erste Fall, an dem er sich zeigt.
+* Das Zurücksetzen setzt die zuletzt installierte Version neu. Ist diese Version nicht
+  bekannt — winget zeigt dann einen Gedankenstrich an — ist der Knopf an dieser Zeile
+  nicht vorhanden, und es bleibt die manuelle Option unter „Alle Befehle → install".
 * Die Meldungen im Fehlerprotokoll sind immer auf Deutsch, auch bei englischer Oberfläche. Sie
   sind Diagnosetext für die Fehlersuche, keine Bedienoberfläche.
 * Die Ausgabe von winget erscheint in der Sprache von Windows, unabhängig von der eingestellten
