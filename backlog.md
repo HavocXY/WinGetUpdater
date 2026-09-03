@@ -71,7 +71,7 @@ Screenshots dunkel/hell zeigen Zeile unverändert (Hover per Mausklick im echten
 
 ### 3. Kontrast Light-Theme: `Fg.Muted` auf Sidebar anheben
 
-**Status:** Offen
+**Status:** In Arbeit
 
 **Warum:** `Fg.Muted #71706A` auf `Bg.Sidebar #F2F0E9` misst **4,36:1** – unter dem
 4,5:1-Minimum. Betrifft die Sidebar-Fußzeile („39 Befehle") und die Gruppen-Kopfzeilen.
