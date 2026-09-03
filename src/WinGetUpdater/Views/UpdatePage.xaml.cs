@@ -72,4 +72,20 @@ public partial class UpdatePage : UserControl
         if (sender is FrameworkElement fe && fe.DataContext is UpdateItem item)
             item.IsSelected = !item.IsSelected;
     }
+
+    /// <summary>
+    /// Leertaste oder Eingabetaste auf der fokussierten Zeile schalten dieselbe Auswahl um
+    /// wie ein Mausklick - Checkbox und Zurückrollen-Knopf behandeln ihre eigenen Tasten
+    /// selbst und markieren das Ereignis dabei als behandelt, erreichen diesen Handler also
+    /// nicht.
+    /// </summary>
+    private void OnRowKeyDown(object sender, KeyEventArgs e)
+    {
+        if (e.Handled || e.Key is not (Key.Space or Key.Enter)) return;
+        if (sender is FrameworkElement fe && fe.DataContext is UpdateItem item)
+        {
+            item.IsSelected = !item.IsSelected;
+            e.Handled = true;
+        }
+    }
 }

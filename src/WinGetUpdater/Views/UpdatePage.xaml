@@ -23,14 +23,23 @@
         Die ganze Zeile ist anwählbar: Name, Version, Quelle und Leerraum schalten IsSelected
         um. Die Checkbox und der Zurückrollen-Knopf sind ButtonBase, die das Maus-Event als
         behandelt markieren, und bleiben damit unverändert (kein Doppelumschalten).
+        Zusätzlich per Tastatur erreichbar: die Zeile selbst ist fokussierbar (sichtbar am
+        Accent-Rahmen) und Leertaste/Eingabe schalten dieselbe Auswahl um wie ein Mausklick -
+        kein separater Zustand, keine doppelte Logik.
         -->
-      <Border Padding="14,11" Margin="0,0,0,1" Cursor="Hand" MouseLeftButtonDown="OnRowToggled">
+      <Border Padding="14,11" Margin="0,0,0,1" Cursor="Hand"
+              Focusable="True" BorderThickness="1"
+              MouseLeftButtonDown="OnRowToggled" KeyDown="OnRowKeyDown">
         <Border.Style>
           <Style TargetType="Border">
             <Setter Property="Background" Value="{DynamicResource Bg.Card}" />
+            <Setter Property="BorderBrush" Value="Transparent" />
             <Style.Triggers>
               <Trigger Property="IsMouseOver" Value="True">
                 <Setter Property="Background" Value="{DynamicResource Bg.Hover}" />
+              </Trigger>
+              <Trigger Property="IsKeyboardFocused" Value="True">
+                <Setter Property="BorderBrush" Value="{DynamicResource Accent}" />
               </Trigger>
             </Style.Triggers>
           </Style>
