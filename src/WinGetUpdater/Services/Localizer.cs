@@ -29,6 +29,10 @@ public sealed class Localizer : INotifyPropertyChanged
             OnPropertyChanged(nameof(Language));
             OnPropertyChanged(nameof(IsGerman));
             OnPropertyChanged("Item[]");   // laesst alle Indexer-Bindungen neu auswerten
+
+            // Am allerletzten: die neue Sprache ist zu diesem Zeitpunkt bereits aktiv,
+            // also liefert jeder nachfolgende Lokalisierungs-Lesung schon den neuen Text.
+            LanguageChanged?.Invoke(this, EventArgs.Empty);
         }
     }
 
@@ -42,6 +46,14 @@ public sealed class Localizer : INotifyPropertyChanged
     public string Format(string key, params object[] args) => string.Format(this[key], args);
 
     public event PropertyChangedEventHandler? PropertyChanged;
+
+    /// <summary>
+    /// Wird ausgelöst, wenn sich die Oberflächensprache geändert hat - nach dem
+    /// Indexer-Refresh, sodass die neue Sprache zu diesem Zeitpunkt schon aktiv ist.
+    /// Lokalisierbare Eigenschaften melden sich über ObservableObject.RegisterLocalized
+    /// an und feuern dann ihre eigenen PropertyChanged selbst.
+    /// </summary>
+    public event EventHandler? LanguageChanged;
 
     private void OnPropertyChanged([CallerMemberName] string? name = null) =>
         PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(name));

@@ -1,6 +1,7 @@
 using System.ComponentModel;
 using System.Runtime.CompilerServices;
 using System.Windows.Input;
+using WinGetUpdater.Services;
 
 namespace WinGetUpdater.ViewModels;
 
@@ -17,6 +18,29 @@ public abstract class ObservableObject : INotifyPropertyChanged
         field = value;
         OnPropertyChanged(name);
         return true;
+    }
+
+    private readonly HashSet<string> _localizedPropertyNames = new();
+    private bool _subscribedToLanguage;
+
+    /// <summary>
+    /// Macht die genannten Eigenschaften sprachwechsel-fähig: sie melden sich selbst neu,
+    /// sobald die Oberflächensprache wechselt. Eine lokalisierte Eigenschaft muss damit nur
+    /// einmal hier genannt werden - wer sie vergisst, verfestigt still die alte Sprache
+    /// statt die neue anzuzeigen. Mehrere Aufrufe werden zusammengefasst; abonniert wird
+    /// nur einmal.
+    /// </summary>
+    protected void RegisterLocalized(params string[] names)
+    {
+        foreach (var name in names) _localizedPropertyNames.Add(name);
+        if (!_subscribedToLanguage)
+        {
+            _subscribedToLanguage = true;
+            Localizer.Instance.LanguageChanged += (_, _) =>
+            {
+                foreach (var name in _localizedPropertyNames) OnPropertyChanged(name);
+            };
+        }
     }
 }
 

@@ -284,6 +284,95 @@ public class UpdateVmTests
     }
 
     [Fact]
+    public void Sprachwechsel_meldet_auch_die_vergessenen_Eigenschaften_neu()
+    {
+        // Vor dem Fix: OutputButtonText und SelectionText blieben beim Wechsel auf Englisch
+        // deutsch, weil sie in der manuellen RefreshLanguage()-Liste fehlten.
+        var (vm, _) = Build(new FakeRunner());
+        var original = Localizer.Instance.Language;
+        try
+        {
+            var raised = new List<string>();
+            vm.PropertyChanged += (_, e) =>
+            {
+                if (e.PropertyName is not null) raised.Add(e.PropertyName);
+            };
+
+            Assert.Equal("Verlauf anzeigen", vm.OutputButtonText);   // Deutsch
+
+            Localizer.Instance.Language = "en";
+
+            var expected = new[]
+            {
+                "Headline", "SubLine", "SelectionText", "RunButtonText",
+                "OptionSummary", "PreviewLine", "OutputButtonText"
+            };
+            foreach (var name in expected) Assert.Contains(name, raised);
+            Assert.Equal("Show log", vm.OutputButtonText);           // Englisch
+        }
+        finally
+        {
+            Localizer.Instance.Language = original;
+        }
+    }
+
+    [Fact]
+    public void Sprachwechsel_meldet_auch_die_Optionen_von_CommandVm_neu()
+    {
+        // OptionVm und CommandVm durften ihre Labels sonst auch im alten Stand lassen.
+        var store = TestSchema.Load();
+        var command = new CommandVm(store.Find("install")!, store, new CommandLineBuilder(store), new FakeRunner());
+        var option = command.PrimaryOptions.First();
+
+        var original = Localizer.Instance.Language;
+        try
+        {
+            var raised = new List<string>();
+            option.PropertyChanged += (_, e) => { if (e.PropertyName is not null) raised.Add(e.PropertyName); };
+            command.PropertyChanged += (_, e) => { if (e.PropertyName is not null) raised.Add(e.PropertyName); };
+
+            Localizer.Instance.Language = Localizer.Instance.IsGerman ? "en" : "de";
+
+            Assert.Contains(nameof(OptionVm.Label), raised);
+            Assert.Contains(nameof(OptionVm.Description), raised);
+            Assert.Contains(nameof(CommandVm.Title), raised);
+            Assert.Contains(nameof(CommandVm.OptionsToggleText), raised);
+        }
+        finally
+        {
+            Localizer.Instance.Language = original;
+        }
+    }
+
+    [Fact]
+    public void Sprachwechsel_meldet_auch_RestoreHint_der_Zeile_neu()
+    {
+        var item = new UpdateItem
+        {
+            Name = "Stirling PDF",
+            Id = "StirlingTools.StirlingPDF",
+            CurrentVersion = "2.14.0",
+            NewVersion = "2.14.3",
+            Source = "winget"
+        };
+
+        var original = Localizer.Instance.Language;
+        try
+        {
+            var raised = new List<string>();
+            item.PropertyChanged += (_, e) => { if (e.PropertyName is not null) raised.Add(e.PropertyName); };
+
+            Localizer.Instance.Language = Localizer.Instance.IsGerman ? "en" : "de";
+
+            Assert.Contains(nameof(UpdateItem.RestoreHint), raised);
+        }
+        finally
+        {
+            Localizer.Instance.Language = original;
+        }
+    }
+
+    [Fact]
     public async Task Ein_gelungenes_Zuruecksetzen_wird_als_solches_gemeldet()
     {
         var runner = new FakeRunner()

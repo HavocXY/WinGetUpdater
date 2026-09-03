@@ -53,6 +53,10 @@ public sealed class ShellVm : ObservableObject
         ClearLogCommand = new RelayCommand(ErrorLog.Instance.Clear);
         CopyLogCommand = new RelayCommand(CopyLog);
 
+        // Die Seiten (CommandVm) und die Update-Liste (UpdateVm) registrieren ihre eigenen
+        // lokalisierten Eigenschaften selbst - hier bleiben nur die, die zur Schale gehören.
+        RegisterLocalized(nameof(WingetSummary), nameof(WingetTooltip), nameof(CommandCountText));
+
         BuildNavigation();
         if (Winget is not null) Select("search");
     }
@@ -213,13 +217,11 @@ public sealed class ShellVm : ObservableObject
 
     private void ToggleLanguage()
     {
+        // Der Toggle löst LanguageChanged aus: jede lokalisierte Eigenschaft der Schale,
+        // der Befehlsseiten und der Update-Liste meldet sich damit selbst neu. Es bleibt
+        // nur der Navigationseinstellung, die ihre Labels neu baut.
         Localizer.Instance.Toggle();
         BuildNavigation();
-        foreach (var page in _pages.Values) page.RefreshLanguage();
-        Updates?.RefreshLanguage();
-        OnPropertyChanged(nameof(WingetSummary));
-        OnPropertyChanged(nameof(WingetTooltip));
-        OnPropertyChanged(nameof(CommandCountText));
     }
 
     private void ToggleTheme()

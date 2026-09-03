@@ -33,6 +33,10 @@ public sealed class OptionVm : ObservableObject
             TextValue = "";
         });
         RemoveItemCommand = new RelayCommand(p => { if (p is string s) Items.Remove(s); });
+
+        // Label und Beschreibung kommen aus dem Schema - sie müssen beim Sprachwechsel
+        // genauso neu gemeldet werden wie der Rest.
+        RegisterLocalized(nameof(Label), nameof(Description));
     }
 
     public OptionSpec Spec { get; }
@@ -110,12 +114,6 @@ public sealed class OptionVm : ObservableObject
     }
 
     public void SetText(string value) => TextValue = value;
-
-    public void RefreshLanguage()
-    {
-        OnPropertyChanged(nameof(Label));
-        OnPropertyChanged(nameof(Description));
-    }
 
     private void Browse()
     {

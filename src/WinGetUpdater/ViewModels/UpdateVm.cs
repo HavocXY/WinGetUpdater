@@ -15,6 +15,13 @@ public sealed class UpdateItem : ObservableObject
     private ItemState _state = ItemState.Waiting;
     private string _note = "";
 
+    public UpdateItem()
+    {
+        // RestoreHint ist lokalisiert - meldet sich wie alle anderen an, sonst bleibt
+        // er nach einem Sprachwechsel im alten Stand stehen.
+        RegisterLocalized(nameof(RestoreHint));
+    }
+
     public required string Name { get; init; }
     public required string Id { get; init; }
     public required string CurrentVersion { get; init; }
@@ -120,6 +127,13 @@ public sealed class UpdateVm : ObservableObject
         SelectNoneCommand = new RelayCommand(() => SetAll(false));
         ToggleOptionsCommand = new RelayCommand(() => ShowOptions = !ShowOptions);
         ToggleOutputCommand = new RelayCommand(() => ShowOutput = !ShowOutput);
+
+        // Jede lokalisierte Eigenschaft meldet sich hier an - wer eine neue hinzufügt,
+        // ergänzt sie in diese Liste und ist damit automatisch sprachwechsel-fähig.
+        RegisterLocalized(
+            nameof(Headline), nameof(SubLine), nameof(SelectionText),
+            nameof(RunButtonText), nameof(OptionSummary), nameof(PreviewLine),
+            nameof(OutputButtonText));
     }
 
     public Localizer Loc => Localizer.Instance;
@@ -586,14 +600,4 @@ public sealed class UpdateVm : ObservableObject
     private string LastLines(int count) =>
         string.Join(Environment.NewLine,
             Output.Select(o => o.Text).Where(t => t.Trim().Length > 0).TakeLast(count));
-
-    public void RefreshLanguage()
-    {
-        foreach (var name in new[]
-                 {
-                     nameof(Headline), nameof(SubLine), nameof(RunButtonText),
-                     nameof(OptionSummary), nameof(PreviewLine)
-                 })
-            OnPropertyChanged(name);
-    }
 }

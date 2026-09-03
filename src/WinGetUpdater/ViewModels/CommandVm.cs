@@ -78,6 +78,14 @@ public sealed class CommandVm : ObservableObject
         ResetCommand = new RelayCommand(Reset);
         OpenDocsCommand = new RelayCommand(OpenDocs);
 
+        // Alle lokalisierten Eigenschaften melden sich hier an; die einzelnen OptionVm
+        // machen das in ihrem eigenen Konstruktor. So bleibt die Sprachumschaltung
+        // lückenlos, wenn neue Eigenschaften dazukommen.
+        RegisterLocalized(
+            nameof(Title), nameof(Description), nameof(AdvancedHeader),
+            nameof(GlobalHeader), nameof(ElevationNote), nameof(RowCountText),
+            nameof(OptionsToggleText), nameof(TableHint));
+
         UpdatePreview();
     }
 
@@ -306,19 +314,6 @@ public sealed class CommandVm : ObservableObject
 
     public IEnumerable<OptionVm> AllOptions() =>
         PrimaryOptions.Concat(AdvancedOptions).Concat(GlobalOptions);
-
-    public void RefreshLanguage()
-    {
-        foreach (var option in AllOptions()) option.RefreshLanguage();
-        OnPropertyChanged(nameof(Title));
-        OnPropertyChanged(nameof(Description));
-        OnPropertyChanged(nameof(AdvancedHeader));
-        OnPropertyChanged(nameof(GlobalHeader));
-        OnPropertyChanged(nameof(ElevationNote));
-        OnPropertyChanged(nameof(RowCountText));
-        OnPropertyChanged(nameof(OptionsToggleText));
-        OnPropertyChanged(nameof(TableHint));
-    }
 
     private IReadOnlyList<OptionVm> Build(IEnumerable<string> ids) =>
         ids.Where(id => _store.TryGetOption(id, out _))
