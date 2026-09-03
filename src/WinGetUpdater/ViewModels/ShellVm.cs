@@ -55,7 +55,7 @@ public sealed class ShellVm : ObservableObject
 
         // Die Seiten (CommandVm) und die Update-Liste (UpdateVm) registrieren ihre eigenen
         // lokalisierten Eigenschaften selbst - hier bleiben nur die, die zur Schale gehören.
-        RegisterLocalized(nameof(WingetSummary), nameof(WingetTooltip), nameof(CommandCountText));
+        RegisterLocalized();
 
         BuildNavigation();
         if (Winget is not null) Select("search");
@@ -103,14 +103,17 @@ public sealed class ShellVm : ObservableObject
         set => Set(ref _showLog, value);
     }
 
+    [Localized]
     public string WingetSummary => Winget is null
         ? Localizer.Instance["Winget.NotFound"]
         : $"winget {Winget.Version.TrimStart('v')}";
 
+    [Localized]
     public string WingetTooltip => Winget is null
         ? Localizer.Instance["Winget.NotFoundHint"]
         : $"{Winget.ExePath}\n{Localizer.Instance.Format("Winget.FoundVia", Winget.HowFound)}";
 
+    [Localized]
     public string CommandCountText => Localizer.Instance.Format("Nav.CommandCount", Store.Commands.Count);
 
     public CommandVm? Current

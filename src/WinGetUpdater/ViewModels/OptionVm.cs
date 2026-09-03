@@ -34,16 +34,16 @@ public sealed class OptionVm : ObservableObject
         });
         RemoveItemCommand = new RelayCommand(p => { if (p is string s) Items.Remove(s); });
 
-        // Label und Beschreibung kommen aus dem Schema - sie müssen beim Sprachwechsel
-        // genauso neu gemeldet werden wie der Rest.
-        RegisterLocalized(nameof(Label), nameof(Description));
+        // Label und Beschreibung kommen aus dem Schema - [Localized] sorgt dafuer, dass sie
+        // beim Sprachwechsel genauso neu gemeldet werden wie der Rest.
+        RegisterLocalized();
     }
 
     public OptionSpec Spec { get; }
     public Localizer Loc => Localizer.Instance;
 
-    public string Label => Spec.Label.Get(Localizer.Instance.Language);
-    public string Description => Spec.Desc.Get(Localizer.Instance.Language);
+    [Localized] public string Label => Spec.Label.Get(Localizer.Instance.Language);
+    [Localized] public string Description => Spec.Desc.Get(Localizer.Instance.Language);
 
     /// <summary>Die Schreibweise, wie sie in der Befehlszeile erscheint - inklusive Kurzform als Hinweis.</summary>
     public string CliHint => string.IsNullOrEmpty(Spec.Alias) ? Spec.Cli : $"{Spec.Cli}, {Spec.Alias}";

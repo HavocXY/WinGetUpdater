@@ -129,12 +129,10 @@ public sealed class UpdateVm : ObservableObject
         ToggleOptionsCommand = new RelayCommand(() => ShowOptions = !ShowOptions);
         ToggleOutputCommand = new RelayCommand(() => ShowOutput = !ShowOutput);
 
-        // Jede lokalisierte Eigenschaft meldet sich hier an - wer eine neue hinzufügt,
-        // ergänzt sie in diese Liste und ist damit automatisch sprachwechsel-fähig.
-        RegisterLocalized(
-            nameof(Headline), nameof(SubLine), nameof(SelectionText),
-            nameof(RunButtonText), nameof(OptionSummary), nameof(PreviewLine),
-            nameof(OutputButtonText), nameof(RefreshButtonText));
+        // Jede mit [Localized] markierte Eigenschaft dieser Klasse meldet sich hier an - wer
+        // eine neue lokalisierte Eigenschaft hinzufügt, markiert nur sie und ist damit
+        // automatisch sprachwechsel-fähig.
+        RegisterLocalized();
 
         // UpdateVm lebt fuer die gesamte Laufzeit der App, die einzelnen UpdateItem-Zeilen
         // dagegen nur bis zur naechsten Pruefung. Deshalb abonniert nicht jede Zeile selbst
@@ -195,11 +193,13 @@ public sealed class UpdateVm : ObservableObject
     /// danach. Ein fester Text würde im Startzustand behaupten, es gäbe etwas zu
     /// wiederholen - da ist aber noch nichts geprüft.
     /// </summary>
+    [Localized]
     public string RefreshButtonText =>
         Localizer.Instance[_stage == UpdateStage.Start ? "Update.Check" : "Update.CheckAgain"];
 
     public int SelectedCount => Items.Count(i => i.IsSelected);
 
+    [Localized]
     public string Headline => _stage switch
     {
         UpdateStage.Start => Localizer.Instance["Update.HeadlineStart"],
@@ -212,6 +212,7 @@ public sealed class UpdateVm : ObservableObject
             : Localizer.Instance.Format("Update.HeadlineReadyMany", Items.Count)
     };
 
+    [Localized]
     public string SubLine
     {
         get
@@ -245,8 +246,10 @@ public sealed class UpdateVm : ObservableObject
     }
 
     /// <summary>"2 von 5 ausgewählt" - ersetzt die Spaltenkoepfe durch eine nuetzlichere Angabe.</summary>
+    [Localized]
     public string SelectionText => Localizer.Instance.Format("Update.SelectedOf", SelectedCount, Items.Count);
 
+    [Localized]
     public string RunButtonText => SelectedCount switch
     {
         0 => Localizer.Instance["Update.RunNone"],
@@ -275,6 +278,7 @@ public sealed class UpdateVm : ObservableObject
         set { if (Set(ref _showOutput, value)) OnPropertyChanged(nameof(OutputButtonText)); }
     }
 
+    [Localized]
     public string OutputButtonText =>
         Localizer.Instance[_showOutput ? "Update.HideOutput" : "Update.ShowOutput"];
 
@@ -319,6 +323,7 @@ public sealed class UpdateVm : ObservableObject
     public bool CanElevate => !ElevationService.IsProcessElevated;
 
     /// <summary>Die Kurzfassung der wirksamen Einstellungen, direkt neben dem Knopf.</summary>
+    [Localized]
     public string OptionSummary
     {
         get
@@ -334,6 +339,7 @@ public sealed class UpdateVm : ObservableObject
     }
 
     /// <summary>Die Befehlszeile, die pro Programm ausgefuehrt wird - am Beispiel des ersten.</summary>
+    [Localized]
     public string PreviewLine
     {
         get
