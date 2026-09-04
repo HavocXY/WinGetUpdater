@@ -258,7 +258,7 @@
               <ItemsControl ItemsSource="{Binding Log.Entries}">
                 <ItemsControl.ItemTemplate>
                   <DataTemplate>
-                    <Border Margin="0,0,0,6" Padding="11,9" CornerRadius="5"
+                    <Border Margin="0,0,0,6" Padding="11,9" CornerRadius="7"
                             Background="{DynamicResource Bg.CardAlt}">
                       <StackPanel>
                         <StackPanel Orientation="Horizontal">

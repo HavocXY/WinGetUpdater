@@ -38,11 +38,14 @@
     <Setter Property="FontWeight" Value="SemiBold" />
   </Style>
 
+  <!-- 9px statt 5px Knopf-Radius: aktuelle SaaS-Referenzen (Linear, Raycast) setzen Flaechen
+       spuerbar runder an als Klickziele - der Unterschied ist Teil des Musters, nicht nur
+       ein Einzelwert. -->
   <Style x:Key="Card" TargetType="Border">
     <Setter Property="Background" Value="{DynamicResource Bg.Card}" />
     <Setter Property="BorderBrush" Value="{DynamicResource Border.Default}" />
     <Setter Property="BorderThickness" Value="1" />
-    <Setter Property="CornerRadius" Value="6" />
+    <Setter Property="CornerRadius" Value="9" />
   </Style>
 
   <!-- ============================ Button ============================ -->

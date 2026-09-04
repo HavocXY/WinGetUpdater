@@ -153,7 +153,7 @@
     </Grid>
 
     <!-- ==================== Fehlerhinweis ==================== -->
-    <Border Grid.Row="1" Margin="0,0,0,16" Padding="16,13" CornerRadius="6"
+    <Border Grid.Row="1" Margin="0,0,0,16" Padding="16,13" CornerRadius="9"
             Background="{DynamicResource Danger.Subtle}"
             BorderBrush="{DynamicResource State.Error}" BorderThickness="1"
             Visibility="{Binding HasProblem, Converter={StaticResource Vis}}">
@@ -271,7 +271,7 @@
           <TextBlock Text="{Binding [Update.OptAdminHelp], Source={x:Static svc:Localizer.Instance}}"
                      Style="{StaticResource Text.Caption}" Margin="25,0,0,14" TextWrapping="Wrap" />
 
-          <Border Background="{DynamicResource Bg.Console}" CornerRadius="4" Padding="12,9">
+          <Border Background="{DynamicResource Bg.Console}" CornerRadius="7" Padding="12,9">
             <StackPanel>
               <TextBlock Text="{Binding [Update.ShowCommand], Source={x:Static svc:Localizer.Instance}}"
                          FontSize="10.5" Foreground="{DynamicResource Fg.Muted}" Margin="0,0,0,4" />
@@ -285,7 +285,7 @@
       </Border>
 
       <!-- Verlauf -->
-      <Border Background="{DynamicResource Bg.Console}" CornerRadius="6" Height="180"
+      <Border Background="{DynamicResource Bg.Console}" CornerRadius="9" Height="180"
               BorderBrush="{DynamicResource Border.Default}" BorderThickness="1"
               Visibility="{Binding ShowOutput, Converter={StaticResource Vis}}">
         <ScrollViewer x:Name="OutputScroll" Padding="12,9" VerticalScrollBarVisibility="Auto">
