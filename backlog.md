@@ -33,7 +33,7 @@ noch zu tun ist.
 
 ### 1. Emoji durch eingebettete Vektor-Icons ersetzen
 
-**Status:** In Arbeit
+**Status:** Erledigt (Commit `8f32820`)
 
 **Warum:** Emoji-Glyphen (🛡 ⚠ ✓ ✕ ● ↩ ◐) sehen je nach installierter Segoe-Emoji-Version
 unterschiedlich aus und lassen sich nicht in den Theme-Farben einfärben — einer der
