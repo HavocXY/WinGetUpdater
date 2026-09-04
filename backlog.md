@@ -60,7 +60,7 @@ bereits zur Baml-Übersetzungszeit.
 
 ### 2. Karten-/Listen-Radius anheben
 
-**Status:** Offen
+**Status:** In Arbeit
 
 **Warum:** Aktuelle SaaS-Referenzen (Linear, Raycast) liegen für Flächen (Karten, Listen)
 meist bei 8–12px Eckenradius; die App liegt bei 6px. Buttons bleiben bewusst kleiner
