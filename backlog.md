@@ -1,6 +1,6 @@
 # Backlog – Optik & UX
 
-Zwei Pakete sind bereits abgeschlossen und stehen deshalb nicht mehr hier, nur noch in der
+Drei Pakete sind bereits abgeschlossen und stehen deshalb nicht mehr hier, nur noch in der
 Commit-Historie:
 
 * „Optik & UX" — Sprachumschaltung, klickbare Update-Zeilen, Kontrast Light-Theme,
@@ -8,6 +8,9 @@ Commit-Historie:
 * Die xhigh-Code-Review-Nachbesserungen daraus — Speicherleck, generisches `RegisterLocalized`,
   vollständige Regressionstests, tastaturbedienbare Update-Zeile, `RefreshButtonText`-Duplikat
   (Commits `55a5962`..`7139b1c`).
+* Modernisierung (Administratorrechte-Abfrage beim Start, Manrope-Schrift, eingebettete
+  Vektor-Icons, Karten-Radius, Hover-Übergänge, ClearType- und Theme-Cache-Fehler aus der
+  echten Nutzung) — Commits `3c8c662`..`541d752`.
 
 Erkenntnisse daraus, die über den jeweiligen Commit hinaus gelten, stehen in `CLAUDE.md`
 („Localisation split", „Non-obvious invariants") statt hier — das Backlog hält nur an, was
@@ -31,96 +34,5 @@ noch zu tun ist.
 
 ## Die Punkte
 
-### 1. Emoji durch eingebettete Vektor-Icons ersetzen
-
-**Status:** Erledigt (Commit `8f32820`)
-
-**Warum:** Emoji-Glyphen (🛡 ⚠ ✓ ✕ ● ↩ ◐) sehen je nach installierter Segoe-Emoji-Version
-unterschiedlich aus und lassen sich nicht in den Theme-Farben einfärben — einer der
-meistgenannten Sofort-Modernisierungsschritte laut Recherche (siehe Mockup-Artefakt vom
-04.09.2026, „Icon-Modernisierung").
-
-**Was:**
-- `Resources/Icons.xaml`: sieben Lucide-Pfaddaten (ISC-Lizenz, wie Manrope ohne Paket
-  eingebettet) als benannte `Geometry`-Ressourcen plus ein `Icon`-Style für `Path`
-  (Stretch=Uniform, 2px Strich, runde Enden/Ecken, keine Füllung).
-- Alle 15 Fundstellen in `ElevationPromptWindow`, `ShellWindow`, `UpdatePage`,
-  `CommandPage` umgestellt.
-- Theme-Umschalter zeigt jetzt Sonne/Mond je nach *Ziel*-Zustand (neue
-  `ShellVm.IsDarkTheme`-Eigenschaft) statt eines neutralen Halbkreises immer gleich.
-- „Läuft"-Punkt in der Update-Zeile ist jetzt ein echtes `Ellipse`-Element statt des
-  Unicode-Zeichens „●".
-
-**Verifikation:** Screenshots dunkel/hell (Hauptansicht, „Alle Befehle → Deinstallieren"
-für Warn-Icons, Fehlerprotokoll für den Schließen-Button) zeigen alle Symbole scharf und
-korrekt eingefärbt. `Icon.RotateCcw` (Zurückrollen-Zustand einer Zeile) ließ sich ohne
-echten fehlgeschlagenen Lauf nicht screenshotten - Pfaddaten nach derselben Methode wie
-die sechs sichtbar geprüften Icons hergeleitet, Build kompiliert die Geometrie-Syntax
-bereits zur Baml-Übersetzungszeit.
-
-### 2. Karten-/Listen-Radius anheben
-
-**Status:** Erledigt (Commit `c0366f7`)
-
-**Warum:** Aktuelle SaaS-Referenzen (Linear, Raycast) liegen für Flächen (Karten, Listen)
-meist bei 8–12px Eckenradius; die App liegt bei 6px. Buttons bleiben bewusst kleiner
-(5–7px), damit klickbare Elemente kompakter wirken als Flächen — dieser Unterschied ist
-selbst Teil des modernen Musters, nicht nur ein einzelner Wert.
-
-**Was:** `Card`-Style in `Controls.xaml` (`CornerRadius`) sowie die Radien der
-Update-Liste/Ergebnisliste (`UpdatePage.xaml`, `CommandPage.xaml`, wo hart codiert statt
-über den Style) auf 8-9px anheben. `Radius` (Buttons, 5px) unangetastet lassen.
-
-**Verifikation:** Screenshots aller Karten-tragenden Ansichten dunkel/hell; nichts wirkt
-merklich runder als die Buttons daneben.
-
-### 3. Hover-Übergänge auf Buttons/Zeilen
-
-**Status:** Erledigt (Commit `4f381ed`) – bewusst nur Buttons, nicht die Update-Zeile (siehe
-Commit-Beschreibung: schnell überflogene Liste, sofortiges Feedback passt dort besser).
-
-**Warum:** Aktuell wechselt der Hover-Hintergrund hart, ohne Übergang - ein kurzer
-Farb-Übergang (~120 ms) ist reines WPF (`ColorAnimation` im `Trigger`), braucht kein
-Paket, und ist einer der kleinen Unterschiede, die eine Oberfläche „lebendig" wirken
-lassen statt statisch.
-
-**Was:** `EnterActions`/`ExitActions` mit `ColorAnimation` auf die Button- und
-Zeilen-Hover-Trigger in `Controls.xaml` (Basis-Button-Style, `Btn.Primary`) und
-`UpdatePage.xaml` (Zeilen-Border) ergänzen.
-
-**Verifikation:** Manuell im echten Fenster geprüft (ein Screenshot kann eine Animation
-nicht zeigen) - Übergang fühlbar, aber nicht behäbig; bestehende Klick-Tests bleiben grün.
-
-### 4. Zwei vom Nutzer gemeldete Lesbarkeits-/Theme-Fehler aus der echten Nutzung
-
-**Status:** Erledigt (Commit `6f55c9b`)
-
-**Warum:** Erst im echten Fenster (nicht im internen `--screenshot`, der beide Fehler
-strukturell nicht zeigen kann) sichtbar geworden:
-1. „1 Programm aktualisieren" auf hellem Akzent kaum lesbar - ClearType-Subpixel-Rendering
-   auf gesättigtem Untergrund ist auf Schwarz-auf-Weiß kalibriert und erzeugt auf einer
-   kräftigen Farbfläche Farbsäume, die Text weicher wirken lassen als er kontrastmäßig ist.
-   `RenderTargetBitmap` (der `--screenshot`-Mechanismus) kann grundsätzlich kein ClearType
-   rendern und weicht automatisch auf Graustufen aus - deshalb sah es dort immer gut aus.
-2. Der vorausgewählte Eintrag in der Seitenleiste („Suchen") blieb nach einem Themenwechsel
-   auf der Farbe des alten Themes hängen, bis eine echte Auswahländerung das Binding neu
-   auswertete. Ursache: `SelectedCommandConverter` (und drei weitere Converter im selben
-   Stil) lösten die Ressource per `Application.Current.TryFindResource(...)` einmalig zu
-   einem konkreten `Brush` auf - das Binding feuert aber nur neu, wenn sich die gebundenen
-   *Werte* ändern, nicht wenn nur das Theme wechselt.
-
-**Was:**
-- `TextOptions.TextRenderingMode="Grayscale"` auf beiden Fenstern (`ShellWindow`,
-  `ElevationPromptWindow`); `Btn.Primary` zusätzlich auf `FontWeight="Bold"` (statt
-  `SemiBold`) angehoben.
-- `SelectedCommandConverter`, `LineKindToBrushConverter`, `RunStateToBrushConverter`,
-  `LogLevelToBrushConverter`: die drei zuletzt genannten ganz entfernt, ihre Aufrufstellen
-  auf `Style.Triggers`/`DataTrigger` mit `{DynamicResource}`-Settern umgestellt.
-  `SelectedCommandConverter` bleibt, liefert aber nur noch `bool` statt eines Brush; die
-  Farbe kommt jetzt ebenfalls aus einem `DataTrigger`-Setter. `DynamicResource` in einem
-  Setter bleibt live am Theme haengen, unabhängig davon, wann der Trigger zuletzt gefeuert
-  hat - das behebt die Fehlerklasse strukturell, nicht nur den gemeldeten Einzelfall.
-
-**Verifikation:** Beide Fehler vom Nutzer im echten, laufenden Fenster nachgestellt und als
-behoben bestätigt. Zusätzlich Screenshots dunkel/hell mit `--command install` zeigen die
-jeweils korrekte, theme-eigene Auswahlfarbe. Alle 81 Tests grün.
+_Aktuell leer. Das nächste Paket kommt hier rein – nach demselben Schema wie die
+abgeschlossenen Pakete oben: Status, Warum, Was, Verifikation._

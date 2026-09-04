@@ -79,6 +79,16 @@ Unhandled exceptions land in `%TEMP%\wingetupdater-crash.log` **and** in the err
 `%LOCALAPPDATA%\WinGetUpdater\wingetupdater.log`. Check both after any headless run; a silent
 exit code 0 with no PNG usually means an exception was recorded there.
 
+**`--screenshot` cannot reveal ClearType problems.** It renders through `RenderTargetBitmap`,
+which always anti-aliases text in grayscale regardless of the live `TextRenderingMode` — text
+that looks crisp in a captured PNG can still look fuzzy/fringed on the real screen, because actual
+ClearType (subpixel RGB rendering, tuned for black-on-white) fares worse on saturated colour
+backgrounds like the accent button. This is why `TextOptions.TextRenderingMode="Grayscale"` is set
+on both top-level windows: it was invisible in every screenshot taken during development and only
+showed up when a user looked at the real window. Any future change to text-on-colour (a new
+coloured badge, a differently-styled button) needs an actual look at the live window, not just a
+`--screenshot` diff, to judge legibility.
+
 ## Architecture
 
 ### Two modes, one engine
@@ -248,6 +258,31 @@ requirement made testable.
   `ComboBox`, a `Slider`, …) will silently double-toggle the selection on click — give it its own
   `e.Handled = true` if that ever comes up. The row is also `Focusable` for the same reason a
   `CheckBox` already was: Tab must reach it without a mouse.
+* **Icons are embedded Lucide path data, not a font or a package.** `Resources/Icons.xaml`
+  defines each icon as a named `Geometry` (Lucide, lucide.dev, ISC licence — free to embed, no
+  attribution required) plus a shared `Icon` style (`Path`, `Stretch="Uniform"`, 2px stroke,
+  round joins/caps, no fill) — the same no-dependency approach as the Manrope font. When folding
+  a multi-`<path>` Lucide SVG into one `Geometry` string: only the very first `M`/`m` of the
+  *whole* combined string gets the "lowercase moveto is still absolute" exception — every
+  subsequent sub-path's leading command must already be an absolute, uppercase `M`/`L` with fully
+  resolved coordinates, or WPF (like SVG) reads it as relative to wherever the previous sub-path
+  ended and silently draws the wrong shape. `Icon.X`'s second sub-path is the worked example of
+  resolving `m6 6 12 12` to `M6 6L18 18`.
+* **A converter that resolves a theme resource itself goes stale on a theme switch.**
+  `Application.Current.TryFindResource(key) as Brush` returns a frozen `Brush` snapshot; the
+  binding it feeds only re-invokes the converter when its *input* changes, never when the
+  resource dictionary is swapped (`ShellVm.ToggleTheme`) — the element then keeps showing the old
+  theme's colour until some unrelated change to the input forces a re-evaluation. Four converters
+  shipped with exactly this bug at once (`Views/Converters.cs` history: `SelectedCommandConverter`,
+  `LineKindToBrushConverter`, `RunStateToBrushConverter`, `LogLevelToBrushConverter`) — the
+  selected nav command was the one a user actually noticed, staying dark-themed after a switch to
+  light until they picked a different command. The fix is to never resolve a brush inside a
+  converter: either have it return a `bool`/enum and drive the colour from a
+  `Style.Trigger`/`DataTrigger` whose `Setter` uses `{DynamicResource}` (see
+  `SelectedCommandConverter` plus the nav button style in `ShellWindow.xaml`), or skip the
+  converter entirely and put one `DataTrigger` per case directly in the element's `Style` (how the
+  other three were replaced). A `{DynamicResource}` inside a `Setter` stays live across theme
+  swaps regardless of when the trigger last fired; a value a converter hands back never does.
 
 ### Localisation split
 
