@@ -2,7 +2,13 @@
                     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
                     xmlns:sys="clr-namespace:System;assembly=System.Runtime">
 
-  <FontFamily x:Key="Font.Ui">Segoe UI Variable Text, Segoe UI, Arial</FontFamily>
+  <!--
+    Manrope, eingebettet (Resources/Fonts/Manrope, SIL Open Font License) statt einer
+    Systemschrift - der Grund fuer "No custom typefaces" in CLAUDE.md gilt hier nicht mehr,
+    weil die Gewichtsdateien Teil der Anwendung sind, nicht Web-Fonts. "Segoe UI, Arial" bleibt
+    als Fallback fuer den (theoretischen) Fall, dass die Font-Ressource nicht geladen werden kann.
+    -->
+  <FontFamily x:Key="Font.Ui">pack://application:,,,/Resources/Fonts/Manrope/#Manrope, Segoe UI, Arial</FontFamily>
   <FontFamily x:Key="Font.Mono">Cascadia Mono, Consolas, Courier New</FontFamily>
   <sys:Double x:Key="Font.Size">13</sys:Double>
   <sys:Double x:Key="Font.SizeSmall">12</sys:Double>

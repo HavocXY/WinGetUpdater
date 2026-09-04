@@ -225,8 +225,17 @@ requirement made testable.
   - Every foreground/background pair in use clears 4.5:1, including accent-as-text on the card and
     console grounds and the state colours on `Accent.Subtle`. If you change a colour, **measure**;
     the eye is unreliable here, and two of these values were below the line on first attempt.
-* No custom typefaces. WPF cannot fetch webfonts, so anything not installed on the target machine
-  falls back silently — Segoe UI stays unless a font is bundled with the app.
+* **Manrope is the UI typeface, bundled — not a system or web font.** WPF cannot fetch web fonts,
+  so anything not installed on the target machine would otherwise fall back silently to Segoe UI.
+  `Resources/Fonts/Manrope/*.ttf` (SIL Open Font License; static per-weight files, not the
+  variable-font build — WPF's `FontWeight` doesn't reliably resolve a variable font's weight axis)
+  are `Resource` items, referenced from `Font.Ui` via
+  `pack://application:,,,/Resources/Fonts/Manrope/#Manrope, Segoe UI, Arial`. Adding a weight means
+  dropping that weight's static `.ttf` next to the others in the same folder — nothing else to
+  wire up, WPF picks the file whose embedded metadata matches the requested `FontWeight`.
+  `Font.Mono` deliberately stays a system monospace font (Cascadia Mono/Consolas): Manrope has no
+  monospace cut, and a proportional font in a package ID or the command-line preview would break
+  the column alignment those rely on.
 * **`winget.exe` is not reliably on PATH.** `WingetLocator` tries the App Execution Alias, then
   PATH, then globs `Microsoft.DesktopAppInstaller_*_8wekyb3d8bbwe` under WindowsApps. If none
   works the app shows an explanatory page instead of failing.

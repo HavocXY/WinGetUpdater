@@ -136,6 +136,7 @@ hat Vorrang vor der eingebetteten.
 ```
 src\WinGetUpdater\
 ├─ Resources\winget-schema.json   Alle 39 Befehle und 99 Optionen, zweisprachig beschrieben
+├─ Resources\Fonts\Manrope\       Eingebettete Schrift, sieben Schnitte (SIL Open Font License)
 ├─ Models\Schema.cs               Datentypen dazu
 ├─ Services\
 │  ├─ SchemaStore.cs              Lädt das Schema (eingebettet oder extern)
@@ -194,9 +195,11 @@ mit einem Blaugrün als Akzent. Drei Festlegungen, alle nachgemessen:
   des Akzents als Textfarbe und der Zustandsfarben auf getönten Flächen. Nachgemessen, nicht
   geschätzt: zwei Werte lagen im ersten Anlauf darunter.
 
-Eigene Schriften kommen nicht zum Einsatz. WPF kann keine Webschriften nachladen; was auf dem
-Zielrechner fehlt, fällt still auf einen Ersatz zurück. Deshalb bleibt es bei Segoe UI, solange
-keine Schrift mit der Anwendung ausgeliefert wird.
+Schrift: [Manrope](https://github.com/sharanda/manrope) (SIL Open Font License), fest in die
+Anwendung eingebettet — WPF kann keine Webschriften nachladen, deshalb liegen die Gewichtsdateien
+selbst unter `Resources/Fonts/Manrope` und laufen ohne Installation auf dem Zielrechner. Zahlen und
+Befehlszeilen bleiben in einer echten Monospace-Schrift (Cascadia Mono/Consolas) — Manrope hat
+keinen Festbreiten-Schnitt, und eine Proportionalschrift dort würde die Spaltenausrichtung zerstören.
 
 ### Die Rechteerhöhung
 
