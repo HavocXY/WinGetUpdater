@@ -1,3 +1,5 @@
+using System.ComponentModel;
+using System.Diagnostics;
 using System.Security.Principal;
 using WinGetUpdater.Models;
 
@@ -60,6 +62,39 @@ public static class ElevationService
             return new ElevationAdvice(true, "Elevation.Configuration");
 
         return new ElevationAdvice(false, "Elevation.MaybeNeeded");
+    }
+
+    /// <summary>
+    /// Startet die Anwendung per UAC-Aufforderung erneut mit Administratorrechten. Beendet den
+    /// eigenen, nicht erhöhten Prozess nicht selbst - das obliegt dem Aufrufer, sobald er dafür
+    /// bereit ist (z. B. nachdem ein bereits geöffnetes Fenster sauber weggeräumt wurde).
+    /// Ein abgelehnter UAC-Dialog ist ein erwarteter Ausgang, kein Fehler - genau wie
+    /// <see cref="WingetRunner.RunElevatedAsync"/> es für einzelne Befehle bereits behandelt.
+    /// </summary>
+    public static bool TryRelaunchElevated()
+    {
+        var exePath = Environment.ProcessPath;
+        if (string.IsNullOrEmpty(exePath))
+        {
+            ErrorLog.Instance.Warn(nameof(ElevationService), "Der eigene Programmpfad ließ sich nicht ermitteln.");
+            return false;
+        }
+
+        try
+        {
+            Process.Start(new ProcessStartInfo(exePath) { UseShellExecute = true, Verb = "runas" });
+            return true;
+        }
+        catch (Win32Exception ex) when (ex.NativeErrorCode == 1223) // ERROR_CANCELLED
+        {
+            ErrorLog.Instance.Warn(nameof(ElevationService), "Die Abfrage der Administratorrechte wurde abgelehnt.");
+            return false;
+        }
+        catch (Exception ex)
+        {
+            ErrorLog.Instance.Error(nameof(ElevationService), "Neustart als Administrator ist fehlgeschlagen.", ex);
+            return false;
+        }
     }
 
     private static bool HasText(IReadOnlyDictionary<string, object?> values, string id) =>

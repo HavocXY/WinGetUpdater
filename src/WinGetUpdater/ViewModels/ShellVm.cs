@@ -52,6 +52,7 @@ public sealed class ShellVm : ObservableObject
         OpenLogFileCommand = new RelayCommand(ErrorLog.Instance.OpenFile);
         ClearLogCommand = new RelayCommand(ErrorLog.Instance.Clear);
         CopyLogCommand = new RelayCommand(CopyLog);
+        RestartElevatedCommand = new RelayCommand(RestartElevated, () => !IsElevated);
 
         // Die Seiten (CommandVm) und die Update-Liste (UpdateVm) registrieren ihre eigenen
         // lokalisierten Eigenschaften selbst - hier bleiben nur die, die zur Schale gehören.
@@ -82,6 +83,7 @@ public sealed class ShellVm : ObservableObject
     public RelayCommand OpenLogFileCommand { get; }
     public RelayCommand ClearLogCommand { get; }
     public RelayCommand CopyLogCommand { get; }
+    public RelayCommand RestartElevatedCommand { get; }
 
     public AppMode Mode
     {
@@ -189,6 +191,18 @@ public sealed class ShellVm : ObservableObject
         {
             ErrorLog.Instance.Warn(nameof(ShellVm), "Das Protokoll ließ sich nicht kopieren.", ex);
         }
+    }
+
+    /// <summary>
+    /// Zweite Gelegenheit fuer alle, die den Neustart-Hinweis beim Programmstart abgelehnt
+    /// (oder die UAC-Abfrage dort abgebrochen) haben: der Warn-Chip in der Kopfzeile ruft das
+    /// hier direkt auf, ohne weitere Rueckfrage - der Klick auf den beschrifteten Chip ist die
+    /// Bestaetigung. Bei Erfolg beendet sich dieser, nicht erhoehte Prozess selbst.
+    /// </summary>
+    private void RestartElevated()
+    {
+        if (ElevationService.TryRelaunchElevated())
+            Application.Current.Shutdown();
     }
 
     private void BuildNavigation()

@@ -252,6 +252,16 @@ public sealed class Localizer : INotifyPropertyChanged
                                      "Depending on the package, administrator rights may be required."),
         ["Elevation.AlreadyElevated"] = ("Die Anwendung läuft bereits mit Administratorrechten.",
                                          "The application is already running elevated."),
+        ["Elevation.PromptTitle"] = ("Administratorrechte empfohlen", "Administrator rights recommended"),
+        ["Elevation.PromptBody"] =
+            ("Programminstallationen und -updates funktionieren nur mit Administratorrechten " +
+             "zuverlässig. Ohne sie können einzelne Aktualisierungen fehlschlagen oder stillschweigend " +
+             "übersprungen werden. Jetzt als Administrator neu starten?",
+             "Program installs and updates only work reliably with administrator rights. Without " +
+             "them, some updates may fail or be silently skipped. Restart as administrator now?"),
+        ["Elevation.PromptRestart"] = ("Als Administrator neu starten", "Restart as administrator"),
+        ["Elevation.PromptContinue"] = ("Ohne Administratorrechte fortfahren",
+                                        "Continue without administrator rights"),
 
         ["Grid.Install"] = ("Installieren", "Install"),
         ["Grid.Upgrade"] = ("Aktualisieren", "Upgrade"),
@@ -263,6 +273,12 @@ public sealed class Localizer : INotifyPropertyChanged
         ["Shell.Theme"] = ("Design wechseln", "Switch theme"),
         ["Shell.Language"] = ("Sprache wechseln", "Switch language"),
         ["Shell.Elevated"] = ("Mit Administratorrechten gestartet", "Started with administrator rights"),
+        ["Shell.NotElevated"] = ("Keine Adminrechte", "No admin rights"),
+        ["Shell.NotElevatedHint"] =
+            ("Läuft ohne Administratorrechte — nicht alle Programme lassen sich zuverlässig " +
+             "aktualisieren. Zum Neustart als Administrator klicken.",
+             "Running without administrator rights — not all programs can be reliably updated. " +
+             "Click to restart as administrator."),
 
         ["Winget.NotFound"] = ("winget wurde auf diesem System nicht gefunden.",
                                "winget was not found on this system."),
