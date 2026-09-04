@@ -93,7 +93,7 @@ nicht zeigen) - Übergang fühlbar, aber nicht behäbig; bestehende Klick-Tests 
 
 ### 4. Zwei vom Nutzer gemeldete Lesbarkeits-/Theme-Fehler aus der echten Nutzung
 
-**Status:** Erledigt (Commit folgt)
+**Status:** Erledigt (Commit `6f55c9b`)
 
 **Warum:** Erst im echten Fenster (nicht im internen `--screenshot`, der beide Fehler
 strukturell nicht zeigen kann) sichtbar geworden:
