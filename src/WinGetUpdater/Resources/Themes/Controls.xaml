@@ -38,11 +38,14 @@
     <Setter Property="FontWeight" Value="SemiBold" />
   </Style>
 
+  <!-- 9px statt 5px Knopf-Radius: aktuelle SaaS-Referenzen (Linear, Raycast) setzen Flaechen
+       spuerbar runder an als Klickziele - der Unterschied ist Teil des Musters, nicht nur
+       ein Einzelwert. -->
   <Style x:Key="Card" TargetType="Border">
     <Setter Property="Background" Value="{DynamicResource Bg.Card}" />
     <Setter Property="BorderBrush" Value="{DynamicResource Border.Default}" />
     <Setter Property="BorderThickness" Value="1" />
-    <Setter Property="CornerRadius" Value="6" />
+    <Setter Property="CornerRadius" Value="9" />
   </Style>
 
   <!-- ============================ Button ============================ -->
@@ -61,17 +64,38 @@
     <Setter Property="Template">
       <Setter.Value>
         <ControlTemplate TargetType="Button">
-          <Border x:Name="Bd" Background="{TemplateBinding Background}"
-                  BorderBrush="{TemplateBinding BorderBrush}"
-                  BorderThickness="{TemplateBinding BorderThickness}"
-                  CornerRadius="{StaticResource Radius}">
+          <Grid SnapsToDevicePixels="True">
+            <Border x:Name="Bd" Background="{TemplateBinding Background}"
+                    BorderBrush="{TemplateBinding BorderBrush}"
+                    BorderThickness="{TemplateBinding BorderThickness}"
+                    CornerRadius="{StaticResource Radius}" />
+            <!-- Eigene Ebene fuer den Hover-Farbton statt direktem Background-Wechsel auf Bd:
+                 ein DynamicResource-Pinsel laesst sich nicht per ColorAnimation animieren, eine
+                 Opacity-Ueberblendung schon - und bleibt dabei unabhaengig vom Theme korrekt. -->
+            <Border x:Name="HoverOverlay" Background="{DynamicResource Bg.Hover}"
+                    CornerRadius="{StaticResource Radius}" Opacity="0" IsHitTestVisible="False" />
             <ContentPresenter HorizontalAlignment="{TemplateBinding HorizontalContentAlignment}"
                               VerticalAlignment="{TemplateBinding VerticalContentAlignment}"
                               Margin="{TemplateBinding Padding}" />
-          </Border>
+          </Grid>
           <ControlTemplate.Triggers>
             <Trigger Property="IsMouseOver" Value="True">
-              <Setter TargetName="Bd" Property="Background" Value="{DynamicResource Bg.Hover}" />
+              <Trigger.EnterActions>
+                <BeginStoryboard>
+                  <Storyboard>
+                    <DoubleAnimation Storyboard.TargetName="HoverOverlay" Storyboard.TargetProperty="Opacity"
+                                     To="1" Duration="0:0:0.12" />
+                  </Storyboard>
+                </BeginStoryboard>
+              </Trigger.EnterActions>
+              <Trigger.ExitActions>
+                <BeginStoryboard>
+                  <Storyboard>
+                    <DoubleAnimation Storyboard.TargetName="HoverOverlay" Storyboard.TargetProperty="Opacity"
+                                     To="0" Duration="0:0:0.12" />
+                  </Storyboard>
+                </BeginStoryboard>
+              </Trigger.ExitActions>
             </Trigger>
             <Trigger Property="IsPressed" Value="True">
               <Setter TargetName="Bd" Property="Opacity" Value="0.75" />
@@ -94,19 +118,42 @@
     <Setter Property="Template">
       <Setter.Value>
         <ControlTemplate TargetType="Button">
-          <Border x:Name="Bd" Background="{TemplateBinding Background}"
-                  BorderBrush="{TemplateBinding BorderBrush}" BorderThickness="1"
-                  CornerRadius="{StaticResource Radius}">
+          <Grid SnapsToDevicePixels="True">
+            <Border x:Name="Bd" Background="{TemplateBinding Background}"
+                    BorderBrush="{TemplateBinding BorderBrush}" BorderThickness="1"
+                    CornerRadius="{StaticResource Radius}" />
+            <!-- Wie beim Grundstil: Opacity-Ueberblendung statt direktem Farbwechsel, damit
+                 der Uebergang animierbar bleibt, ohne den DynamicResource-Pinsel zu ersetzen. -->
+            <Border x:Name="HoverOverlay" Background="{DynamicResource Accent.Hover}"
+                    CornerRadius="{StaticResource Radius}" Opacity="0" IsHitTestVisible="False" />
             <ContentPresenter HorizontalAlignment="{TemplateBinding HorizontalContentAlignment}"
                               VerticalAlignment="{TemplateBinding VerticalContentAlignment}"
                               Margin="{TemplateBinding Padding}" />
-          </Border>
+          </Grid>
           <ControlTemplate.Triggers>
             <Trigger Property="IsMouseOver" Value="True">
-              <Setter TargetName="Bd" Property="Background" Value="{DynamicResource Accent.Hover}" />
+              <Trigger.EnterActions>
+                <BeginStoryboard>
+                  <Storyboard>
+                    <DoubleAnimation Storyboard.TargetName="HoverOverlay" Storyboard.TargetProperty="Opacity"
+                                     To="1" Duration="0:0:0.12" />
+                  </Storyboard>
+                </BeginStoryboard>
+              </Trigger.EnterActions>
+              <Trigger.ExitActions>
+                <BeginStoryboard>
+                  <Storyboard>
+                    <DoubleAnimation Storyboard.TargetName="HoverOverlay" Storyboard.TargetProperty="Opacity"
+                                     To="0" Duration="0:0:0.12" />
+                  </Storyboard>
+                </BeginStoryboard>
+              </Trigger.ExitActions>
             </Trigger>
+            <!-- Drueckt sofort, ohne Uebergang - anders als der Hover-Einstieg soll das
+                 Klickgefuehl unmittelbar sein. Die Ueberblendflaeche ist ohnehin schon
+                 sichtbar (IsPressed setzt IsMouseOver voraus), nur ihre Farbe wechselt. -->
             <Trigger Property="IsPressed" Value="True">
-              <Setter TargetName="Bd" Property="Background" Value="{DynamicResource Accent.Press}" />
+              <Setter TargetName="HoverOverlay" Property="Background" Value="{DynamicResource Accent.Press}" />
             </Trigger>
             <Trigger Property="IsEnabled" Value="False">
               <Setter TargetName="Bd" Property="Opacity" Value="0.4" />

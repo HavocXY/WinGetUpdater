@@ -71,18 +71,21 @@
 
           <Border Grid.Column="4" MinWidth="118" VerticalAlignment="Center">
             <StackPanel Orientation="Horizontal" HorizontalAlignment="Right">
-              <TextBlock Text="✓" FontSize="15" Margin="0,0,6,0" VerticalAlignment="Center"
-                         Foreground="{DynamicResource State.Ok}"
-                         Visibility="{Binding IsDone, Converter={StaticResource Vis}}" />
-              <TextBlock Text="✕" FontSize="15" Margin="0,0,6,0" VerticalAlignment="Center"
-                         Foreground="{DynamicResource State.Error}"
-                         Visibility="{Binding IsFailed, Converter={StaticResource Vis}}" />
-              <TextBlock Text="↩" FontSize="15" Margin="0,0,6,0" VerticalAlignment="Center"
-                         Foreground="{DynamicResource State.Ok}"
-                         Visibility="{Binding IsRestored, Converter={StaticResource Vis}}" />
-              <TextBlock Text="●" FontSize="13" Margin="0,0,6,0" VerticalAlignment="Center"
-                         Foreground="{DynamicResource Accent}"
-                         Visibility="{Binding IsRunning, Converter={StaticResource Vis}}" />
+              <Path Style="{StaticResource Icon}" Data="{StaticResource Icon.Check}"
+                    Width="14" Height="14" Margin="0,0,6,0" VerticalAlignment="Center"
+                    StrokeThickness="2.6" Stroke="{DynamicResource State.Ok}"
+                    Visibility="{Binding IsDone, Converter={StaticResource Vis}}" />
+              <Path Style="{StaticResource Icon}" Data="{StaticResource Icon.X}"
+                    Width="14" Height="14" Margin="0,0,6,0" VerticalAlignment="Center"
+                    StrokeThickness="2.6" Stroke="{DynamicResource State.Error}"
+                    Visibility="{Binding IsFailed, Converter={StaticResource Vis}}" />
+              <Path Style="{StaticResource Icon}" Data="{StaticResource Icon.RotateCcw}"
+                    Width="14" Height="14" Margin="0,0,6,0" VerticalAlignment="Center"
+                    Stroke="{DynamicResource State.Ok}"
+                    Visibility="{Binding IsRestored, Converter={StaticResource Vis}}" />
+              <Ellipse Width="8" Height="8" Margin="0,0,6,0" VerticalAlignment="Center"
+                       Fill="{DynamicResource Accent}"
+                       Visibility="{Binding IsRunning, Converter={StaticResource Vis}}" />
               <TextBlock Text="{Binding Note}" VerticalAlignment="Center"
                          Style="{StaticResource Text.Caption}"
                          Visibility="{Binding HasNote, Converter={StaticResource Vis}}" />
@@ -150,7 +153,7 @@
     </Grid>
 
     <!-- ==================== Fehlerhinweis ==================== -->
-    <Border Grid.Row="1" Margin="0,0,0,16" Padding="16,13" CornerRadius="6"
+    <Border Grid.Row="1" Margin="0,0,0,16" Padding="16,13" CornerRadius="9"
             Background="{DynamicResource Danger.Subtle}"
             BorderBrush="{DynamicResource State.Error}" BorderThickness="1"
             Visibility="{Binding HasProblem, Converter={StaticResource Vis}}">
@@ -169,8 +172,9 @@
                 Visibility="{Binding ShowUpToDate, Converter={StaticResource Vis}}">
       <Border Width="72" Height="72" CornerRadius="36" HorizontalAlignment="Center"
               Background="{DynamicResource Ok.Subtle}">
-        <TextBlock Text="✓" FontSize="38" HorizontalAlignment="Center" VerticalAlignment="Center"
-                   Foreground="{DynamicResource State.Ok}" />
+        <Path Style="{StaticResource Icon}" Data="{StaticResource Icon.Check}"
+              Width="34" Height="34" HorizontalAlignment="Center" VerticalAlignment="Center"
+              StrokeThickness="2.6" Stroke="{DynamicResource State.Ok}" />
       </Border>
       <TextBlock Text="{Binding [Update.HeadlineUpToDate], Source={x:Static svc:Localizer.Instance}}"
                  FontSize="17" FontWeight="SemiBold" Margin="0,18,0,0" HorizontalAlignment="Center" />
@@ -267,7 +271,7 @@
           <TextBlock Text="{Binding [Update.OptAdminHelp], Source={x:Static svc:Localizer.Instance}}"
                      Style="{StaticResource Text.Caption}" Margin="25,0,0,14" TextWrapping="Wrap" />
 
-          <Border Background="{DynamicResource Bg.Console}" CornerRadius="4" Padding="12,9">
+          <Border Background="{DynamicResource Bg.Console}" CornerRadius="7" Padding="12,9">
             <StackPanel>
               <TextBlock Text="{Binding [Update.ShowCommand], Source={x:Static svc:Localizer.Instance}}"
                          FontSize="10.5" Foreground="{DynamicResource Fg.Muted}" Margin="0,0,0,4" />
@@ -281,7 +285,7 @@
       </Border>
 
       <!-- Verlauf -->
-      <Border Background="{DynamicResource Bg.Console}" CornerRadius="6" Height="180"
+      <Border Background="{DynamicResource Bg.Console}" CornerRadius="9" Height="180"
               BorderBrush="{DynamicResource Border.Default}" BorderThickness="1"
               Visibility="{Binding ShowOutput, Converter={StaticResource Vis}}">
         <ScrollViewer x:Name="OutputScroll" Padding="12,9" VerticalScrollBarVisibility="Auto">
