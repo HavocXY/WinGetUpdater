@@ -6,6 +6,7 @@
         WindowStartupLocation="CenterScreen" ResizeMode="NoResize" ShowInTaskbar="True"
         Background="{DynamicResource Bg.Window}"
         TextOptions.TextFormattingMode="Ideal"
+        TextOptions.TextRenderingMode="Grayscale"
         UseLayoutRounding="True">
 
   <!--

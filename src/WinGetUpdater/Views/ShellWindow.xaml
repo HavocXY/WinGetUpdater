@@ -6,15 +6,15 @@
         Title="WinGetUpdater" Height="820" Width="1180" MinHeight="620" MinWidth="900"
         Background="{DynamicResource Bg.Window}"
         TextOptions.TextFormattingMode="Ideal"
+        TextOptions.TextRenderingMode="Grayscale"
         UseLayoutRounding="True">
 
   <Window.Resources>
     <v:BoolToVisibilityConverter x:Key="Vis" />
     <v:BoolToVisibilityConverter x:Key="VisNot" Invert="True" />
     <v:NotEmptyToVisibilityConverter x:Key="VisFull" />
-    <v:SelectedCommandConverter x:Key="SelectedBrush" />
+    <v:SelectedCommandConverter x:Key="IsSelectedCommand" />
     <v:LocTextConverter x:Key="LocText" />
-    <v:LogLevelToBrushConverter x:Key="LevelBrush" />
   </Window.Resources>
 
   <Grid Background="{DynamicResource Bg.Window}">
@@ -90,9 +90,19 @@
           <Button Style="{StaticResource Btn.Ghost}" Command="{Binding ToggleLogCommand}"
                   ToolTip="{Binding [Log.Title], Source={x:Static svc:Localizer.Instance}}">
             <StackPanel Orientation="Horizontal">
-              <Path Style="{StaticResource Icon}" Data="{StaticResource Icon.TriangleAlert}"
-                    Width="13" Height="13" VerticalAlignment="Center"
-                    Stroke="{Binding Log.HasErrors, Converter={StaticResource LevelBrush}}" />
+              <Path Width="13" Height="13" VerticalAlignment="Center"
+                    Data="{StaticResource Icon.TriangleAlert}">
+                <Path.Style>
+                  <Style TargetType="Path" BasedOn="{StaticResource Icon}">
+                    <Setter Property="Stroke" Value="{DynamicResource Fg.Secondary}" />
+                    <Style.Triggers>
+                      <DataTrigger Binding="{Binding Log.HasErrors}" Value="True">
+                        <Setter Property="Stroke" Value="{DynamicResource State.Error}" />
+                      </DataTrigger>
+                    </Style.Triggers>
+                  </Style>
+                </Path.Style>
+              </Path>
               <TextBlock Text="{Binding Log.BadgeText}" Margin="5,0,0,0" VerticalAlignment="Center"
                          FontSize="12"
                          Visibility="{Binding Log.HasProblems, Converter={StaticResource Vis}}" />
@@ -168,13 +178,27 @@
                                       Command="{Binding DataContext.SelectCommand,
                                                 RelativeSource={RelativeSource AncestorType=Window}}"
                                       CommandParameter="{Binding}">
-                                <Button.Background>
-                                  <MultiBinding Converter="{StaticResource SelectedBrush}">
-                                    <Binding Path="Id" />
-                                    <Binding Path="DataContext.CurrentCommandId"
-                                             RelativeSource="{RelativeSource AncestorType=Window}" />
-                                  </MultiBinding>
-                                </Button.Background>
+                                <Button.Style>
+                                  <!-- Setter mit DynamicResource statt eines vom Converter fertig
+                                       aufgeloesten Brush: der bliebe nach einem Themenwechsel auf
+                                       der alten Farbe stehen, bis Id/CurrentCommandId sich erneut
+                                       aendern (siehe Converters.cs, SelectedCommandConverter). -->
+                                  <Style TargetType="Button" BasedOn="{StaticResource {x:Type Button}}">
+                                    <Setter Property="Background" Value="Transparent" />
+                                    <Style.Triggers>
+                                      <DataTrigger Value="True">
+                                        <DataTrigger.Binding>
+                                          <MultiBinding Converter="{StaticResource IsSelectedCommand}">
+                                            <Binding Path="Id" />
+                                            <Binding Path="DataContext.CurrentCommandId"
+                                                     RelativeSource="{RelativeSource AncestorType=Window}" />
+                                          </MultiBinding>
+                                        </DataTrigger.Binding>
+                                        <Setter Property="Background" Value="{DynamicResource Bg.Selected}" />
+                                      </DataTrigger>
+                                    </Style.Triggers>
+                                  </Style>
+                                </Button.Style>
                                 <Grid>
                                   <Grid.ColumnDefinitions>
                                     <ColumnDefinition Width="*" />
@@ -262,8 +286,24 @@
                             Background="{DynamicResource Bg.CardAlt}">
                       <StackPanel>
                         <StackPanel Orientation="Horizontal">
-                          <TextBlock Text="{Binding LevelText}" FontSize="10" FontWeight="SemiBold"
-                                     Foreground="{Binding Level, Converter={StaticResource LevelBrush}}" />
+                          <TextBlock Text="{Binding LevelText}" FontSize="10" FontWeight="SemiBold">
+                            <TextBlock.Style>
+                              <Style TargetType="TextBlock" BasedOn="{StaticResource {x:Type TextBlock}}">
+                                <Setter Property="Foreground" Value="{DynamicResource Fg.Secondary}" />
+                                <Style.Triggers>
+                                  <DataTrigger Binding="{Binding Level}" Value="Error">
+                                    <Setter Property="Foreground" Value="{DynamicResource State.Error}" />
+                                  </DataTrigger>
+                                  <DataTrigger Binding="{Binding Level}" Value="Warning">
+                                    <Setter Property="Foreground" Value="{DynamicResource State.Warn}" />
+                                  </DataTrigger>
+                                  <DataTrigger Binding="{Binding Level}" Value="Info">
+                                    <Setter Property="Foreground" Value="{DynamicResource Fg.Muted}" />
+                                  </DataTrigger>
+                                </Style.Triggers>
+                              </Style>
+                            </TextBlock.Style>
+                          </TextBlock>
                           <TextBlock Text="{Binding TimeText}" FontSize="10" Margin="8,0,0,0"
                                      Foreground="{DynamicResource Fg.Muted}" />
                           <TextBlock Text="{Binding Source}" FontSize="10" Margin="8,0,0,0"

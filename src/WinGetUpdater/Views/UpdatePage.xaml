@@ -9,7 +9,6 @@
     <v:BoolToVisibilityConverter x:Key="Vis" />
     <v:BoolToVisibilityConverter x:Key="VisNot" Invert="True" />
     <v:NotEmptyToVisibilityConverter x:Key="VisFull" />
-    <v:LineKindToBrushConverter x:Key="LineBrush" />
 
     <Storyboard x:Key="Spin" RepeatBehavior="Forever">
       <DoubleAnimation Storyboard.TargetName="SpinnerRotation"
@@ -296,8 +295,21 @@
             <ItemsControl.ItemTemplate>
               <DataTemplate>
                 <TextBlock Text="{Binding Text}" FontFamily="{StaticResource Font.Mono}"
-                           FontSize="12" TextWrapping="Wrap"
-                           Foreground="{Binding Kind, Converter={StaticResource LineBrush}}" />
+                           FontSize="12" TextWrapping="Wrap">
+                  <TextBlock.Style>
+                    <Style TargetType="TextBlock" BasedOn="{StaticResource {x:Type TextBlock}}">
+                      <Setter Property="Foreground" Value="{DynamicResource Fg.Console}" />
+                      <Style.Triggers>
+                        <DataTrigger Binding="{Binding Kind}" Value="Error">
+                          <Setter Property="Foreground" Value="{DynamicResource State.Error}" />
+                        </DataTrigger>
+                        <DataTrigger Binding="{Binding Kind}" Value="Info">
+                          <Setter Property="Foreground" Value="{DynamicResource Accent}" />
+                        </DataTrigger>
+                      </Style.Triggers>
+                    </Style>
+                  </TextBlock.Style>
+                </TextBlock>
               </DataTemplate>
             </ItemsControl.ItemTemplate>
           </ItemsControl>

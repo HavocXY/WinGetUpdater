@@ -114,7 +114,10 @@
     <Setter Property="Background" Value="{DynamicResource Accent}" />
     <Setter Property="BorderBrush" Value="{DynamicResource Accent}" />
     <Setter Property="Foreground" Value="{DynamicResource Fg.OnAccent}" />
-    <Setter Property="FontWeight" Value="SemiBold" />
+    <!-- Bold statt SemiBold: auf der gesaettigten Akzentflaeche braucht Text zusaetzliches
+         Gewicht, um trotz Graustufen-Kantenglaettung (statt ClearType) klar lesbar zu
+         bleiben - siehe CLAUDE.md, Farbregeln. -->
+    <Setter Property="FontWeight" Value="Bold" />
     <Setter Property="Template">
       <Setter.Value>
         <ControlTemplate TargetType="Button">
