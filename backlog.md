@@ -76,7 +76,8 @@ merklich runder als die Buttons daneben.
 
 ### 3. Hover-Übergänge auf Buttons/Zeilen
 
-**Status:** In Arbeit
+**Status:** Erledigt (Commit `4f381ed`) – bewusst nur Buttons, nicht die Update-Zeile (siehe
+Commit-Beschreibung: schnell überflogene Liste, sofortiges Feedback passt dort besser).
 
 **Warum:** Aktuell wechselt der Hover-Hintergrund hart, ohne Übergang - ein kurzer
 Farb-Übergang (~120 ms) ist reines WPF (`ColorAnimation` im `Trigger`), braucht kein
