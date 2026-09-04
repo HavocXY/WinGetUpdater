@@ -39,6 +39,7 @@ bewirkt, und ganz unten die fertige Befehlszeile, die tatsächlich ausgeführt w
 | „Ohne Rückfragen" und „Lizenzen annehmen" sind vorausgewählt | Ohne sie bleibt ein unsichtbarer Vorgang an einer Abfrage hängen, die niemand sehen kann. Beide stehen sichtbar neben dem Knopf und lassen sich abschalten. |
 | `--force` wird nie automatisch gesetzt | Es hebelt Prüfungen aus, die winget bewusst vornimmt. Es steht nur unter „Alle Befehle" zur Verfügung. |
 | Es wird immer die Langform erzeugt (`--source`, nie `-s`) | winget belegt Kurzformen doppelt: `-h` ist bei `install` „silent", bei `configure` „history". |
+| Ein echter Start ohne Administratorrechte fragt einmal nach | Die meisten Installationen und Updates schlagen ohne erhöhte Rechte fehl oder still. Wer ablehnt (oder die UAC-Abfrage abbricht), bekommt keinen zweiten Dialog aufgedrängt, sondern einen dauerhaften Hinweis-Chip oben rechts — mit demselben Neustart-Versuch einen Klick entfernt. |
 
 ---
 

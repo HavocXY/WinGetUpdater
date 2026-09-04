@@ -1,0 +1,44 @@
+<Window x:Class="WinGetUpdater.Views.ElevationPromptWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:svc="clr-namespace:WinGetUpdater.Services"
+        Title="WinGetUpdater" Height="280" Width="560"
+        WindowStartupLocation="CenterScreen" ResizeMode="NoResize" ShowInTaskbar="True"
+        Background="{DynamicResource Bg.Window}"
+        TextOptions.TextFormattingMode="Ideal"
+        UseLayoutRounding="True">
+
+  <!--
+    Erscheint einmalig beim Start, bevor das Hauptfenster sichtbar wird, wenn der Prozess nicht
+    bereits erhöht läuft (siehe App.xaml.cs). Automatisierte Läufe (Selftest, Screenshot, Report)
+    überspringen dieses Fenster komplett, damit Headless-Tests nie auf einen Klick warten.
+
+    Das Grid setzt Bg.Window zusaetzlich zum Fenster selbst - Screenshot.CaptureAsync rendert
+    nur window.Content, nicht die Fensterdekoration, und liefert ohne diesen Hintergrund ein
+    transparentes Bild (siehe ShellWindow.xaml, dieselbe Redundanz aus demselben Grund).
+    -->
+  <Grid Margin="28" Background="{DynamicResource Bg.Window}">
+    <Grid.RowDefinitions>
+      <RowDefinition Height="Auto" />
+      <RowDefinition Height="*" />
+      <RowDefinition Height="Auto" />
+    </Grid.RowDefinitions>
+
+    <StackPanel Grid.Row="0" Orientation="Horizontal">
+      <TextBlock Text="🛡" FontSize="22" Margin="0,0,12,0" VerticalAlignment="Center"
+                 Foreground="{DynamicResource State.Admin}" />
+      <TextBlock Text="{Binding [Elevation.PromptTitle], Source={x:Static svc:Localizer.Instance}}"
+                 FontSize="17" FontWeight="SemiBold" VerticalAlignment="Center" TextWrapping="Wrap" />
+    </StackPanel>
+
+    <TextBlock Grid.Row="1" Margin="0,16,0,0" TextWrapping="Wrap" LineHeight="20"
+               Text="{Binding [Elevation.PromptBody], Source={x:Static svc:Localizer.Instance}}" />
+
+    <StackPanel Grid.Row="2" Orientation="Horizontal" HorizontalAlignment="Right" Margin="0,20,0,0">
+      <Button Style="{StaticResource Btn.Ghost}" Margin="0,0,10,0" IsCancel="True" Click="OnContinue"
+              Content="{Binding [Elevation.PromptContinue], Source={x:Static svc:Localizer.Instance}}" />
+      <Button Style="{StaticResource Btn.Primary}" IsDefault="True" Click="OnRestart"
+              Content="{Binding [Elevation.PromptRestart], Source={x:Static svc:Localizer.Instance}}" />
+    </StackPanel>
+  </Grid>
+</Window>

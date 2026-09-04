@@ -65,6 +65,11 @@ WinGetUpdater.exe --screenshot out.png [flags]
 #   --light --english  theme and language
 #   --screenshot none  skip the image (useful with --report)
 
+WinGetUpdater.exe --elevation-prompt --screenshot out.png [--light --english]
+# Diagnostic only: shows the startup admin-rights prompt (ElevationPromptWindow) regardless
+# of actual elevation state, so it can be screenshotted at all - the normal startup path skips
+# it whenever any argument is present. Never actually relaunches anything.
+
 WinGetUpdater.exe --report runs.tsv --command <id> --run --screenshot none
 # Appends: command id, run state, status text, row count, preview line, first output line.
 # Loop this over many commands to smoke-test them in one pass.
@@ -162,6 +167,23 @@ requirement made testable.
   `cmd /c winget … > %TEMP%\wgupdater-<guid>.log 2>&1` with `Verb=runas` and tails that file while
   it runs, so the UI sees the same line stream either way. UAC cancellation surfaces as
   `Win32Exception` 1223. Note this path is not covered by tests — it needs a real UAC prompt.
+* **The app asks to restart elevated, but only on a genuine unattended launch.**
+  `App.OnStartup` shows `ElevationPromptWindow` when `e.Args.Length == 0` (a real double-click or
+  Start-Menu launch) and the process isn't already elevated; any CLI argument (`--selftest`,
+  `--screenshot`, `--command`, `--report`, …) skips it, so a headless run never blocks on a click.
+  `MainWindow` is assigned to the (not yet shown) `ShellWindow` *before* the prompt appears,
+  specifically so that closing the prompt doesn't trip `ShutdownMode="OnMainWindowClose"` and quit
+  the app before the real window is ever shown. Declining, or cancelling the UAC prompt from
+  `ElevationService.TryRelaunchElevated` (same 1223 handling as above), leaves the app running
+  unelevated with a persistent warning chip in the header (`ShellVm.IsElevated` /
+  `RestartElevatedCommand`); clicking that chip later retries the same relaunch, no second
+  confirmation - the click itself is the confirmation.
+* **A screenshot needs its own window content to carry the background.**
+  `Views.Screenshot.CaptureAsync` renders `window.Content`, not the `Window`'s own `Background`
+  (that belongs to the window chrome, not its content) — every top-level `Window`'s root element
+  must set `Background="{DynamicResource Bg.Window}"` itself (see the root `Grid` in both
+  `ShellWindow.xaml` and `ElevationPromptWindow.xaml`), or a screenshot of it renders transparent
+  instead of the theme colour.
 * **Table parsing is positional and measured in display columns, not characters.** Three real
   winget quirks are handled, each found in actual output from this machine and each covered by a
   fixture in `tests/WinGetUpdater.Tests/Fixtures/`:

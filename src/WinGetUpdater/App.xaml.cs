@@ -21,6 +21,17 @@ public partial class App : Application
             return;
         }
 
+        // Nur fuer die visuelle Pruefung: der normale --screenshot-Weg unten durchlaeuft das
+        // Abfrage-Fenster absichtlich nie (jeder Aufruf mit Argumenten gilt als Headless-Lauf),
+        // sonst waere es per --screenshot nie zu sehen. Dieser Schalter zeigt es unabhaengig
+        // vom tatsaechlichen Rechtestatus und startet nichts wirklich neu.
+        if (e.Args.Contains("--elevation-prompt", StringComparer.OrdinalIgnoreCase))
+        {
+            base.OnStartup(e);
+            _ = ShowElevationPromptDiagnosticAsync(e.Args);
+            return;
+        }
+
         // Drei Wege, auf denen eine Ausnahme entkommen kann - alle drei enden im Protokoll.
         DispatcherUnhandledException += OnDispatcherException;
 
@@ -42,14 +53,71 @@ public partial class App : Application
 
         base.OnStartup(e);
 
+        // MainWindow wird bewusst schon jetzt gesetzt, vor einem moeglichen Abfrage-Fenster:
+        // WPF wuerde sonst (ShutdownMode="OnMainWindowClose") das erste angezeigte Fenster
+        // automatisch dazu machen - schloesse man dann das Abfrage-Fenster, wuerde die ganze
+        // Anwendung sofort beendet, bevor das Hauptfenster je zu sehen war.
         var window = new Views.ShellWindow();
         MainWindow = window;
+
+        // Nur ein echter, unbeaufsichtigter Doppelklick-Start fragt nach - jeder Aufruf mit
+        // Argumenten (--selftest ist oben schon abgehandelt, --screenshot/--command/--report
+        // fuer Headless-Laeufe) darf nie auf einen Klick warten.
+        if (e.Args.Length == 0 && !ElevationService.IsProcessElevated)
+        {
+            var prompt = new Views.ElevationPromptWindow();
+            prompt.ShowDialog();
+
+            if (prompt.RestartRequested && ElevationService.TryRelaunchElevated())
+            {
+                Shutdown(0);
+                return;
+            }
+        }
+
         window.Show();
 
         var screenshotIndex = Array.FindIndex(e.Args,
             a => string.Equals(a, "--screenshot", StringComparison.OrdinalIgnoreCase));
         if (screenshotIndex >= 0 && screenshotIndex + 1 < e.Args.Length)
             _ = CaptureAndExitAsync(window, e.Args, screenshotIndex);
+    }
+
+    /// <summary>
+    /// Nur fuer --elevation-prompt: zeigt das Neustart-Abfrage-Fenster, nimmt es bei Bedarf auf
+    /// und beendet sich - unabhaengig davon, ob der Prozess tatsaechlich erhoeht ist.
+    /// </summary>
+    private async Task ShowElevationPromptDiagnosticAsync(string[] args)
+    {
+        try
+        {
+            if (args.Contains("--light", StringComparer.OrdinalIgnoreCase))
+            {
+                var dictionaries = Resources.MergedDictionaries;
+                if (dictionaries.Count > 0)
+                    dictionaries[0] = new ResourceDictionary
+                    { Source = new Uri("Resources/Themes/Light.xaml", UriKind.Relative) };
+            }
+            if (args.Contains("--english", StringComparer.OrdinalIgnoreCase))
+                Localizer.Instance.Language = "en";
+
+            var prompt = new Views.ElevationPromptWindow();
+            MainWindow = prompt;
+            prompt.Show();
+
+            var screenshotIndex = Array.FindIndex(args,
+                a => string.Equals(a, "--screenshot", StringComparison.OrdinalIgnoreCase));
+            if (screenshotIndex >= 0 && screenshotIndex + 1 < args.Length)
+                await Views.Screenshot.CaptureAsync(prompt, args[screenshotIndex + 1]);
+        }
+        catch (Exception ex)
+        {
+            Write(ex);
+        }
+        finally
+        {
+            Shutdown(0);
+        }
     }
 
     /// <summary>Fenster aufbauen, optional einen Befehl ausfuehren, aufnehmen, beenden.</summary>

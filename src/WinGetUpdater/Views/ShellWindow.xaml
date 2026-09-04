@@ -69,6 +69,21 @@
             <TextBlock Text="🛡" FontSize="12" Foreground="{DynamicResource State.Admin}" />
           </Border>
 
+          <!-- Ohne Adminrechte gestartet: klickbarer Hinweis statt stiller Einschraenkung -
+               ein Klick loest denselben Neustart-Versuch aus wie der Dialog beim Programmstart. -->
+          <Button Style="{StaticResource Btn.Ghost}" Margin="0,0,10,0"
+                  Command="{Binding RestartElevatedCommand}"
+                  ToolTip="{Binding [Shell.NotElevatedHint], Source={x:Static svc:Localizer.Instance}}"
+                  Visibility="{Binding IsElevated, Converter={StaticResource VisNot}}">
+            <StackPanel Orientation="Horizontal">
+              <TextBlock Text="⚠" FontSize="12" VerticalAlignment="Center"
+                         Foreground="{DynamicResource State.Warn}" />
+              <TextBlock Text="{Binding [Shell.NotElevated], Source={x:Static svc:Localizer.Instance}}"
+                         Margin="5,0,0,0" VerticalAlignment="Center" FontSize="11.5"
+                         Foreground="{DynamicResource State.Warn}" />
+            </StackPanel>
+          </Button>
+
           <!-- Fehleranzeige: immer sichtbar, damit niemand raten muss, ob etwas schieflief -->
           <Button Style="{StaticResource Btn.Ghost}" Command="{Binding ToggleLogCommand}"
                   ToolTip="{Binding [Log.Title], Source={x:Static svc:Localizer.Instance}}">
