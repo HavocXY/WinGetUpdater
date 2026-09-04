@@ -1,0 +1,48 @@
+<ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+
+  <!--
+    Gezeichnete Symbole statt Emoji: Emoji-Glyphen sehen je nach installierter Segoe-Emoji-Version
+    unterschiedlich aus und lassen sich nicht in den Theme-Farben einfaerben. Die Pfaddaten stammen
+    von Lucide (https://lucide.dev, ISC-Lizenz - wie MIT frei nutzbar, keine Namensnennung noetig),
+    24x24-Raster, direkt als WPF-Pfad-Minisprache eingebettet - kein Paket, keine Laufzeit-Abhaengigkeit,
+    genau wie schon bei Manrope.
+
+    Jede Mehrfach-Pfad-Ikone (mehrere <path>-Elemente im Original-SVG) ist hier zu einem Data-String
+    zusammengefuehrt. Wichtig dabei: nur das allererste "M"/"m" eines gesamten Data-Strings darf laut
+    WPF- und SVG-Regel ein kleines "m" sein und trotzdem absolut gemeint sein - jedes "m", das *nicht*
+    an erster Stelle steht, wuerde relativ zum Endpunkt des vorherigen Teilpfads interpretiert. Deshalb
+    sind alle nachfolgenden Teilpfade hier auf absolute Koordinaten mit grossem "M"/"L" aufgeloest.
+    -->
+
+  <Geometry x:Key="Icon.Shield">M20 13c0 5-3.5 7.5-7.66 8.95a1 1 0 0 1-.67-.01C7.5 20.5 4 18 4 13V6a1 1 0 0 1 1-1c2 0 4.5-1.2 6.24-2.72a1.17 1.17 0 0 1 1.52 0C14.51 3.81 17 5 19 5a1 1 0 0 1 1 1z</Geometry>
+
+  <Geometry x:Key="Icon.TriangleAlert">m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3 M12 9v4 M12 17h.01</Geometry>
+
+  <Geometry x:Key="Icon.Check">M20 6L9 17L4 12</Geometry>
+
+  <Geometry x:Key="Icon.X">M18 6L6 18 M6 6L18 18</Geometry>
+
+  <Geometry x:Key="Icon.RotateCcw">M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8 M3 3v5h5</Geometry>
+
+  <Geometry x:Key="Icon.Moon">M20.985 12.486a9 9 0 1 1-9.473-9.472c.405-.022.617.46.402.803a6 6 0 0 0 8.268 8.268c.344-.215.825-.004.803.401</Geometry>
+
+  <Geometry x:Key="Icon.Sun">M16 12A4 4 0 1 1 8 12A4 4 0 1 1 16 12Z M12 2L12 4 M12 20L12 22 M4.93 4.93L6.34 6.34 M17.66 17.66L19.07 19.07 M2 12L4 12 M20 12L22 12 M6.34 17.66L4.93 19.07 M19.07 4.93L17.66 6.34</Geometry>
+
+  <!--
+    Gemeinsame Aufmachung aller Symbol-Pfade: Lucide zeichnet mit 2px Strich auf einem 24x24-Raster,
+    abgerundeten Enden und ohne Fuellung. Stretch=Uniform skaliert Geometrie *und* Strichstaerke
+    gemeinsam auf die gesetzte Width/Height - ein 2px-Strich im 24er-Raster bleibt damit bei jeder
+    Zielgroesse proportional so duenn wie im Original.
+    -->
+  <Style x:Key="Icon" TargetType="Path">
+    <Setter Property="Stretch" Value="Uniform" />
+    <Setter Property="StrokeThickness" Value="2" />
+    <Setter Property="StrokeLineJoin" Value="Round" />
+    <Setter Property="StrokeStartLineCap" Value="Round" />
+    <Setter Property="StrokeEndLineCap" Value="Round" />
+    <Setter Property="Fill" Value="{x:Null}" />
+    <Setter Property="SnapsToDevicePixels" Value="True" />
+  </Style>
+
+</ResourceDictionary>

@@ -241,9 +241,16 @@ public sealed class ShellVm : ObservableObject
         BuildNavigation();
     }
 
+    /// <summary>Fuer das Sonne/Mond-Symbol am Umschalter - zeigt, wohin der naechste Klick fuehrt.</summary>
+    public bool IsDarkTheme
+    {
+        get => _darkTheme;
+        private set => Set(ref _darkTheme, value);
+    }
+
     private void ToggleTheme()
     {
-        _darkTheme = !_darkTheme;
+        IsDarkTheme = !_darkTheme;
         var uri = new Uri(_darkTheme ? "Resources/Themes/Dark.xaml" : "Resources/Themes/Light.xaml",
                           UriKind.Relative);
 

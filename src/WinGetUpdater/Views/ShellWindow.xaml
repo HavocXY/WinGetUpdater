@@ -66,7 +66,8 @@
                   Background="{DynamicResource Accent.Subtle}"
                   ToolTip="{Binding [Shell.Elevated], Source={x:Static svc:Localizer.Instance}}"
                   Visibility="{Binding IsElevated, Converter={StaticResource Vis}}">
-            <TextBlock Text="🛡" FontSize="12" Foreground="{DynamicResource State.Admin}" />
+            <Path Style="{StaticResource Icon}" Data="{StaticResource Icon.Shield}"
+                  Width="13" Height="13" Stroke="{DynamicResource State.Admin}" />
           </Border>
 
           <!-- Ohne Adminrechte gestartet: klickbarer Hinweis statt stiller Einschraenkung -
@@ -76,8 +77,9 @@
                   ToolTip="{Binding [Shell.NotElevatedHint], Source={x:Static svc:Localizer.Instance}}"
                   Visibility="{Binding IsElevated, Converter={StaticResource VisNot}}">
             <StackPanel Orientation="Horizontal">
-              <TextBlock Text="⚠" FontSize="12" VerticalAlignment="Center"
-                         Foreground="{DynamicResource State.Warn}" />
+              <Path Style="{StaticResource Icon}" Data="{StaticResource Icon.TriangleAlert}"
+                    Width="13" Height="13" VerticalAlignment="Center"
+                    Stroke="{DynamicResource State.Warn}" />
               <TextBlock Text="{Binding [Shell.NotElevated], Source={x:Static svc:Localizer.Instance}}"
                          Margin="5,0,0,0" VerticalAlignment="Center" FontSize="11.5"
                          Foreground="{DynamicResource State.Warn}" />
@@ -88,8 +90,9 @@
           <Button Style="{StaticResource Btn.Ghost}" Command="{Binding ToggleLogCommand}"
                   ToolTip="{Binding [Log.Title], Source={x:Static svc:Localizer.Instance}}">
             <StackPanel Orientation="Horizontal">
-              <TextBlock Text="⚠" FontSize="13" VerticalAlignment="Center"
-                         Foreground="{Binding Log.HasErrors, Converter={StaticResource LevelBrush}}" />
+              <Path Style="{StaticResource Icon}" Data="{StaticResource Icon.TriangleAlert}"
+                    Width="13" Height="13" VerticalAlignment="Center"
+                    Stroke="{Binding Log.HasErrors, Converter={StaticResource LevelBrush}}" />
               <TextBlock Text="{Binding Log.BadgeText}" Margin="5,0,0,0" VerticalAlignment="Center"
                          FontSize="12"
                          Visibility="{Binding Log.HasProblems, Converter={StaticResource Vis}}" />
@@ -99,9 +102,20 @@
           <Button Style="{StaticResource Btn.Ghost}" Content="DE / EN"
                   Command="{Binding ToggleLanguageCommand}"
                   ToolTip="{Binding [Shell.Language], Source={x:Static svc:Localizer.Instance}}" />
-          <Button Style="{StaticResource Btn.Ghost}" Content="◐"
+          <Button Style="{StaticResource Btn.Ghost}"
                   Command="{Binding ToggleThemeCommand}"
-                  ToolTip="{Binding [Shell.Theme], Source={x:Static svc:Localizer.Instance}}" />
+                  ToolTip="{Binding [Shell.Theme], Source={x:Static svc:Localizer.Instance}}">
+            <Grid>
+              <!-- Zeigt das Ziel des Klicks, nicht den aktuellen Stand: dunkel -> Sonnensymbol
+                   (wechselt nach hell), hell -> Mondsymbol (wechselt nach dunkel). -->
+              <Path Style="{StaticResource Icon}" Data="{StaticResource Icon.Sun}"
+                    Width="13" Height="13" Stroke="{DynamicResource Fg.Secondary}"
+                    Visibility="{Binding IsDarkTheme, Converter={StaticResource Vis}}" />
+              <Path Style="{StaticResource Icon}" Data="{StaticResource Icon.Moon}"
+                    Width="13" Height="13" Stroke="{DynamicResource Fg.Secondary}"
+                    Visibility="{Binding IsDarkTheme, Converter={StaticResource VisNot}}" />
+            </Grid>
+          </Button>
         </StackPanel>
       </Grid>
     </Border>
@@ -168,10 +182,12 @@
                                   </Grid.ColumnDefinitions>
                                   <TextBlock Text="{Binding Title, Converter={StaticResource LocText}}"
                                              TextTrimming="CharacterEllipsis" HorizontalAlignment="Left" />
-                                  <TextBlock Grid.Column="1" Text="⚠" FontSize="11" Margin="8,0,0,0"
-                                             VerticalAlignment="Center"
-                                             Foreground="{DynamicResource State.Warn}"
-                                             Visibility="{Binding Danger, Converter={StaticResource Vis}}" />
+                                  <Path Grid.Column="1" Style="{StaticResource Icon}"
+                                        Data="{StaticResource Icon.TriangleAlert}"
+                                        Width="11" Height="11" Margin="8,0,0,0"
+                                        VerticalAlignment="Center"
+                                        Stroke="{DynamicResource State.Warn}"
+                                        Visibility="{Binding Danger, Converter={StaticResource Vis}}" />
                                 </Grid>
                               </Button>
                             </DataTemplate>
@@ -221,9 +237,12 @@
             <Grid>
               <TextBlock Text="{Binding [Log.Title], Source={x:Static svc:Localizer.Instance}}"
                          FontSize="16" FontWeight="SemiBold" />
-              <Button HorizontalAlignment="Right" Style="{StaticResource Btn.Ghost}" Content="✕"
+              <Button HorizontalAlignment="Right" Style="{StaticResource Btn.Ghost}"
                       Command="{Binding ToggleLogCommand}"
-                      ToolTip="{Binding [Log.Close], Source={x:Static svc:Localizer.Instance}}" />
+                      ToolTip="{Binding [Log.Close], Source={x:Static svc:Localizer.Instance}}">
+                <Path Style="{StaticResource Icon}" Data="{StaticResource Icon.X}"
+                      Width="11" Height="11" Stroke="{DynamicResource Fg.Secondary}" />
+              </Button>
             </Grid>
             <TextBlock Text="{Binding [Log.Subtitle], Source={x:Static svc:Localizer.Instance}}"
                        Style="{StaticResource Text.Caption}" TextWrapping="Wrap" Margin="0,5,0,0" />

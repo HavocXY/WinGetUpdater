@@ -71,12 +71,14 @@
                           Padding="9,3" Margin="0,0,5,4">
                     <StackPanel Orientation="Horizontal">
                       <TextBlock Text="{Binding}" FontSize="11.5" />
-                      <Button Content="✕" Margin="6,0,0,0" Padding="0" FontSize="10"
+                      <Button Margin="6,0,0,0" Padding="0"
                               Background="Transparent" BorderThickness="0"
-                              Foreground="{DynamicResource Fg.Secondary}"
                               Command="{Binding DataContext.RemoveItemCommand,
                                         RelativeSource={RelativeSource AncestorType=ItemsControl}}"
-                              CommandParameter="{Binding}" />
+                              CommandParameter="{Binding}">
+                        <Path Style="{StaticResource Icon}" Data="{StaticResource Icon.X}"
+                              Width="9" Height="9" Stroke="{DynamicResource Fg.Secondary}" />
+                      </Button>
                     </StackPanel>
                   </Border>
                 </DataTemplate>
@@ -89,10 +91,13 @@
                   Content="{Binding [Options.Add], Source={x:Static svc:Localizer.Instance}}" />
         </Grid>
 
-        <Button Grid.Column="2" Margin="6,0,0,0" Content="✕" Padding="8,5"
+        <Button Grid.Column="2" Margin="6,0,0,0" Padding="8,5"
                 Style="{StaticResource Btn.Ghost}"
                 Command="{Binding ClearCommand}"
-                Visibility="{Binding IsSet, Converter={StaticResource Vis}}" />
+                Visibility="{Binding IsSet, Converter={StaticResource Vis}}">
+          <Path Style="{StaticResource Icon}" Data="{StaticResource Icon.X}"
+                Width="11" Height="11" Stroke="{DynamicResource Fg.Secondary}" />
+        </Button>
       </Grid>
     </DataTemplate>
 
@@ -104,10 +109,11 @@
               ToolTip="{Binding Description}">
         <StackPanel Orientation="Horizontal">
           <CheckBox IsChecked="{Binding BoolValue, Mode=TwoWay}" Content="{Binding Label}" />
-          <TextBlock Text="⚠" Margin="6,0,0,0" VerticalAlignment="Center"
-                     Foreground="{DynamicResource State.Warn}"
-                     Visibility="{Binding IsRisky, Converter={StaticResource Vis}}"
-                     ToolTip="{Binding [Options.Risky], Source={x:Static svc:Localizer.Instance}}" />
+          <Path Style="{StaticResource Icon}" Data="{StaticResource Icon.TriangleAlert}"
+                Width="12" Height="12" Margin="6,0,0,0" VerticalAlignment="Center"
+                Stroke="{DynamicResource State.Warn}"
+                Visibility="{Binding IsRisky, Converter={StaticResource Vis}}"
+                ToolTip="{Binding [Options.Risky], Source={x:Static svc:Localizer.Instance}}" />
         </StackPanel>
       </Border>
     </DataTemplate>
