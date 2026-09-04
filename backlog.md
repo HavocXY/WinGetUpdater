@@ -90,3 +90,37 @@ Zeilen-Hover-Trigger in `Controls.xaml` (Basis-Button-Style, `Btn.Primary`) und
 
 **Verifikation:** Manuell im echten Fenster geprüft (ein Screenshot kann eine Animation
 nicht zeigen) - Übergang fühlbar, aber nicht behäbig; bestehende Klick-Tests bleiben grün.
+
+### 4. Zwei vom Nutzer gemeldete Lesbarkeits-/Theme-Fehler aus der echten Nutzung
+
+**Status:** Erledigt (Commit `6f55c9b`)
+
+**Warum:** Erst im echten Fenster (nicht im internen `--screenshot`, der beide Fehler
+strukturell nicht zeigen kann) sichtbar geworden:
+1. „1 Programm aktualisieren" auf hellem Akzent kaum lesbar - ClearType-Subpixel-Rendering
+   auf gesättigtem Untergrund ist auf Schwarz-auf-Weiß kalibriert und erzeugt auf einer
+   kräftigen Farbfläche Farbsäume, die Text weicher wirken lassen als er kontrastmäßig ist.
+   `RenderTargetBitmap` (der `--screenshot`-Mechanismus) kann grundsätzlich kein ClearType
+   rendern und weicht automatisch auf Graustufen aus - deshalb sah es dort immer gut aus.
+2. Der vorausgewählte Eintrag in der Seitenleiste („Suchen") blieb nach einem Themenwechsel
+   auf der Farbe des alten Themes hängen, bis eine echte Auswahländerung das Binding neu
+   auswertete. Ursache: `SelectedCommandConverter` (und drei weitere Converter im selben
+   Stil) lösten die Ressource per `Application.Current.TryFindResource(...)` einmalig zu
+   einem konkreten `Brush` auf - das Binding feuert aber nur neu, wenn sich die gebundenen
+   *Werte* ändern, nicht wenn nur das Theme wechselt.
+
+**Was:**
+- `TextOptions.TextRenderingMode="Grayscale"` auf beiden Fenstern (`ShellWindow`,
+  `ElevationPromptWindow`); `Btn.Primary` zusätzlich auf `FontWeight="Bold"` (statt
+  `SemiBold`) angehoben.
+- `SelectedCommandConverter`, `LineKindToBrushConverter`, `RunStateToBrushConverter`,
+  `LogLevelToBrushConverter`: die drei zuletzt genannten ganz entfernt, ihre Aufrufstellen
+  auf `Style.Triggers`/`DataTrigger` mit `{DynamicResource}`-Settern umgestellt.
+  `SelectedCommandConverter` bleibt, liefert aber nur noch `bool` statt eines Brush; die
+  Farbe kommt jetzt ebenfalls aus einem `DataTrigger`-Setter. `DynamicResource` in einem
+  Setter bleibt live am Theme haengen, unabhängig davon, wann der Trigger zuletzt gefeuert
+  hat - das behebt die Fehlerklasse strukturell, nicht nur den gemeldeten Einzelfall.
+
+**Verifikation:** Beide Fehler vom Nutzer im echten, laufenden Fenster nachgestellt und als
+behoben bestätigt. Zusätzlich Screenshots dunkel/hell mit `--command install` zeigen die
+jeweils korrekte, theme-eigene Auswahlfarbe. Alle 81 Tests grün.
