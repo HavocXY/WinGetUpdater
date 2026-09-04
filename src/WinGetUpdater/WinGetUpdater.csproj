@@ -29,4 +29,12 @@
     <EmbeddedResource Include="Resources\winget-schema.json" LogicalName="winget-schema.json" />
   </ItemGroup>
 
+  <ItemGroup>
+    <!-- Manrope (SIL Open Font License, Lizenztext liegt daneben) als echte, statische
+         Gewichtsdateien - keine Variable-Font-Datei, deren Achsen WPFs Font-Engine nicht
+         zuverlaessig ueber FontWeight anspricht. "Resource" statt "EmbeddedResource": das ist
+         der Build-Vorgang, den WPFs pack://application:,,,/-Aufloesung fuer Schriften erwartet. -->
+    <Resource Include="Resources\Fonts\Manrope\*.ttf" />
+  </ItemGroup>
+
 </Project>
