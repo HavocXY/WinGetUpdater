@@ -76,7 +76,7 @@ merklich runder als die Buttons daneben.
 
 ### 3. Hover-Übergänge auf Buttons/Zeilen
 
-**Status:** Offen
+**Status:** In Arbeit
 
 **Warum:** Aktuell wechselt der Hover-Hintergrund hart, ohne Übergang - ein kurzer
 Farb-Übergang (~120 ms) ist reines WPF (`ColorAnimation` im `Trigger`), braucht kein
